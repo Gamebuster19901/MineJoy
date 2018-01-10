@@ -9,7 +9,9 @@ import java.awt.HeadlessException;
 import org.lwjgl.LWJGLException;
 
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
+import com.gamebuster19901.minejoy.controller.MouseHandler;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -29,6 +31,9 @@ public class Minejoy {
 			throw new HeadlessException("Remove MineJoy from the server, it is for clients only");
 		}
 		ControllerHandler.INSTANCE.init();
+		MouseHandler.INSTANCE.init();
+		MinecraftForge.EVENT_BUS.register(ControllerHandler.INSTANCE);
+		MinecraftForge.EVENT_BUS.register(MouseHandler.INSTANCE);
 	}
 	
 	@EventHandler
