@@ -3,6 +3,7 @@ package com.gamebuster19901.minejoy.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiControls;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
@@ -33,12 +34,12 @@ public enum ControlGUIHandler {
 		if(e.getButton().displayString.equals(new TextComponentTranslation("options.joy").getUnformattedComponentText())) {
 			e.setCanceled(true);
 			e.getButton().playPressSound(Minecraft.getMinecraft().getSoundHandler());
-			System.out.println("Controller options!");
+			Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(Minecraft.getMinecraft().currentScreen, I18n.format("options.choosejoy")));
 		}
 		else if (e.getButton().displayString.equals(new TextComponentTranslation("options.mouse").getUnformattedComponentText())) {
 			e.setCanceled(true);
 			e.getButton().playPressSound(Minecraft.getMinecraft().getSoundHandler());
-			System.out.println("Mouse Options!");
+			Minecraft.getMinecraft().displayGuiScreen(new GuiMouseOptions());
 		}
 	}
 }
