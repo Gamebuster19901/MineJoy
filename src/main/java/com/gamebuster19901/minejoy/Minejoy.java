@@ -10,6 +10,7 @@ import org.lwjgl.LWJGLException;
 
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
 import com.gamebuster19901.minejoy.controller.MouseHandler;
+import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -34,6 +35,7 @@ public class Minejoy {
 		MouseHandler.INSTANCE.init();
 		MinecraftForge.EVENT_BUS.register(ControllerHandler.INSTANCE);
 		MinecraftForge.EVENT_BUS.register(MouseHandler.INSTANCE);
+		MinecraftForge.EVENT_BUS.register(ControlGUIHandler.INSTANCE);
 	}
 	
 	@EventHandler
