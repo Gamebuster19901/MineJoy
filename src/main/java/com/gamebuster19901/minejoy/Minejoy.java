@@ -7,7 +7,8 @@ import static com.gamebuster19901.minejoy.Minejoy.VERSION;
 import java.awt.HeadlessException;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Controllers;
+
+import com.gamebuster19901.minejoy.controller.ControllerHandler;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -27,11 +28,7 @@ public class Minejoy {
 		if(e.getSide() == Side.SERVER) {
 			throw new HeadlessException("Remove MineJoy from the server, it is for clients only");
 		}
-		Controllers.create();
-		Controllers.poll();
-		for(int i = 0; i < Controllers.getControllerCount(); i++) {
-			System.out.println(Controllers.getController(i).getName());
-		}
+		ControllerHandler.INSTANCE.init();
 	}
 	
 	@EventHandler
@@ -43,6 +40,5 @@ public class Minejoy {
 	public void postInit(FMLPostInitializationEvent e) {
 		
 	}
-	
 	
 }
