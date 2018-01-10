@@ -1,0 +1,15 @@
+options.mouse=Mouse Options
+options.sensitivity=Mouse Sensitivity
+
+options.joy=Gamepad Options
+options.joyselect=Select Controller
+options.looksensitivity=Look Sensitivity
+options.inverty=Invert Y Axis
+options.invertx=Invert X Axis
+options.cursorsensitivity=Cursor Sensitivity
+options.doubletap=Easy Sprint
+options.deadzone=Deadzone Size
+options.rumble=Rumble
+
+options.norumble=Your controller does not support rumble
+options.nojoystick=Your controller does not have a joystick
