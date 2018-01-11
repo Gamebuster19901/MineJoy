@@ -1,8 +1,6 @@
 package com.gamebuster19901.minejoy.gui;
 
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
-
-import net.java.games.input.Controller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -21,12 +19,11 @@ public class GuiControllerOptions extends GuiScreen{
 	
 	public void initGui() {
 		int i = 0;
-		ControllerHandler.INSTANCE.rescan();
-		if(scroll > ControllerHandler.INSTANCE.getControllers().size()) {
-			scroll = ControllerHandler.INSTANCE.getControllers().size();
+		if(scroll > ControllerHandler.INSTANCE.getAllControllerStates().size()) {
+			scroll = ControllerHandler.INSTANCE.getAllControllerStates().size();
 		}
-		for(Controller c : ControllerHandler.INSTANCE.getControllers()) {
-			this.buttonList.add(new GuiControllerButton(i++, c));
+		for(i = 0; i < ControllerHandler.INSTANCE.getAllControllerStates().size(); i++) {
+			this.buttonList.add(new GuiControllerButton(i, i));
 		}
 		
 		this.buttonList.add(new GuiButtonExt(i, 16, 40, "" + (char)0x25B2));
@@ -75,7 +72,8 @@ public class GuiControllerOptions extends GuiScreen{
 		else {
 			if(b instanceof GuiControllerButton) {
 				GuiControllerButton b2 = (GuiControllerButton)b;
-				if(b2.getController().poll()) {
+				if(ControllerHandler.INSTANCE.getControllerState(b2.getController()).isConnected) {
+					ControllerHandler.INSTANCE.getActiveControllerIndex().stopVibration();
 					ControllerHandler.INSTANCE.setActiveController(b2.getController());
 				}
 			}

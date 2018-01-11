@@ -14,7 +14,7 @@ public enum MouseHandler{
 	
 	@SubscribeEvent
 	public void onTick(TickEvent.ClientTickEvent e){
-		System.out.println(MouseRunnable.INSTANCE.grab);
+		//System.out.println(MouseRunnable.INSTANCE.grab);
 		if(MouseRunnable.INSTANCE.shouldSwitch) {
 			Mouse.setGrabbed(MouseRunnable.INSTANCE.grab);
 			MouseRunnable.INSTANCE.shouldSwitch = false;

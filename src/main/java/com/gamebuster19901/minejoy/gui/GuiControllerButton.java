@@ -1,25 +1,23 @@
 package com.gamebuster19901.minejoy.gui;
 
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
-
-import net.java.games.input.Controller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiControllerButton extends GuiButtonExt{
-	private Controller controller;
+	private int controller;
 	private String defaultTextString = this.displayString;
 	
-	public GuiControllerButton(int id, Controller c) {
-		super(id, 0, 0, 260, 20, c.getName() + " (" + c.getPortNumber() + ")");
-		this.controller = c;
+	public GuiControllerButton(int id, int index) {
+		super(id, 0, 0, 260, 20, ControllerHandler.INSTANCE.getControllerName(index) + " (" + index + ")");
+		this.controller = index;
 	}
 	
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		boolean active = controller.equals(ControllerHandler.INSTANCE.getActiveController());
-		boolean enabled = controller.poll();
+		boolean active = controller == (ControllerHandler.INSTANCE.getActiveController());
+		boolean enabled = ControllerHandler.INSTANCE.getControllerState(controller).isConnected;
 		if(!active && enabled) {
 			this.displayString = defaultTextString;
 		}
@@ -38,7 +36,7 @@ public class GuiControllerButton extends GuiButtonExt{
 		super.drawButton(mc, mouseX, mouseY, partialTicks);
 	}
 	
-	public Controller getController() {
+	public int getController() {
 		return controller;
 	}
 
