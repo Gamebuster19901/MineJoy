@@ -20,6 +20,13 @@ public enum ControllerHandler {
 	public void init(){
 		controllerManager = new ControllerManager();
 		controllerManager.initSDLGamepad();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				System.out.println("Game ended, shutting down Minejoy and Jamepad!");
+				ControllerHandler.this.controllerManager.quitSDLGamepad();
+			}
+		});
+		vibrate(activeController, 1f, 1f, 1500);
 	}
 	
 	@SubscribeEvent
@@ -27,12 +34,6 @@ public enum ControllerHandler {
 		if(controllerManager.getNumControllers() > 0) {
 			ControllerState state = controllerManager.getState(activeController);
 			MinecraftForge.EVENT_BUS.post(new ControllerEvent(activeController, getActiveControllerState(), getActiveControllerIndex()));
-			try {
-				controllerManager.getControllerIndex(activeController).startVibration(1f, 1f);
-			} catch (ControllerUnpluggedException e1) {
-				controllerManager.getControllerIndex(activeController).stopVibration();
-				e1.printStackTrace();
-			}
 		}
 	}
 	
@@ -77,16 +78,34 @@ public enum ControllerHandler {
 		}
 	}
 	
-	public void vibrate(int index, float leftMagnatude, float rightMagnatude) throws ControllerUnpluggedException{
-		ControllerIndex unsafe = controllerManager.getControllerIndex(index);
-		if(leftMagnatude == 0 && rightMagnatude == 0) {
-			if(unsafe.isVibrating() || unsafe.isConnected()) {
-				unsafe.stopVibration();
+	public void vibrate(int index, float leftMagnatude, float rightMagnatude, int milliseconds){
+		new Thread() {
+			public void run() {
+				int ms = milliseconds;
+				ControllerIndex unsafe = controllerManager.getControllerIndex(index);
+				if(leftMagnatude == 0 && rightMagnatude == 0) {
+					if(unsafe.isVibrating() || unsafe.isConnected()) {
+						unsafe.stopVibration();
+					}
+				}
+				else {
+					try {
+						unsafe.startVibration(leftMagnatude, rightMagnatude);
+					} catch (ControllerUnpluggedException e1) {} //while loop will fail because unsafe.isVibrating() will be false, we should swallow
+					while(ms > 0 && unsafe.isVibrating()) {
+						try {
+							Thread.sleep(1);
+							ms--;
+						} catch (InterruptedException e) {
+							unsafe.stopVibration();
+							break;
+						}
+					}
+					unsafe.stopVibration();
+				}
 			}
-			else {
-				unsafe.startVibration(leftMagnatude, rightMagnatude);
-			}
-		}
+		}.start();
+
 	}
 	
 }
