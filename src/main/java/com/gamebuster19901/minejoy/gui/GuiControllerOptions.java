@@ -75,6 +75,7 @@ public class GuiControllerOptions extends GuiScreen{
 				if(ControllerHandler.INSTANCE.getControllerState(b2.getController()).isConnected) {
 					ControllerHandler.INSTANCE.getActiveControllerIndex().stopVibration();
 					ControllerHandler.INSTANCE.setActiveController(b2.getController());
+					ControllerHandler.INSTANCE.vibrate(b2.getController(), 1f, 1f, 600);
 				}
 			}
 		}
