@@ -26,7 +26,6 @@ public enum ControllerHandler {
 					state.leftStickJustClicked = !lastState.leftStickClick && state.leftStickClick;
 					state.rightStickJustClicked = !lastState.rightStickClick &&  state.rightStickClick;
 					state.aJustPressed = !lastState.a && state.a;
-					System.out.println(state.aJustPressed);
 					state.bJustPressed = !lastState.b && state.b;
 					state.xJustPressed = !lastState.x && state.x;
 					state.yJustPressed = !lastState.y && state.y;
@@ -40,7 +39,7 @@ public enum ControllerHandler {
 					state.dpadLeftJustPressed = !lastState.dpadLeft && state.dpadLeft;
 					state.dpadRightJustPressed = !lastState.dpadRight && state.dpadRight;
 					
-					MinecraftForge.EVENT_BUS.post(new ControllerEvent(activeController, state, getActiveControllerIndex()));
+					MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
 				}
 			}
 		}
@@ -139,8 +138,9 @@ public enum ControllerHandler {
 	}
 	
 	@SubscribeEvent
-	public void onController(ControllerEvent e) {
+	public void onController(ControllerEvent.Pre e) {
 		lastState = e.getControllerState();
+		MinecraftForge.EVENT_BUS.post(new ControllerEvent.Post(activeController, getActiveControllerState(), getActiveControllerIndex()));
 	}
 	
 }
