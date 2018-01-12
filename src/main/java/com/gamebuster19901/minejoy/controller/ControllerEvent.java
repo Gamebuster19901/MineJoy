@@ -25,6 +25,10 @@ public abstract class ControllerEvent extends Event{
 		return state;
 	}
 	
+	/**
+	 * @deprecated for internal use only
+	 */
+	@Deprecated
 	public static class Pre extends ControllerEvent{
 
 		public Pre(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
