@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import org.lwjgl.input.Mouse;
 
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
-import com.studiohartman.jamepad.ControllerState;
-
+import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -41,13 +40,10 @@ public final class GuiControllerOverlay extends Gui{
 			}
 		}
 		
-		ControllerState state = ControllerHandler.INSTANCE.getActiveControllerState();
+		ControllerStateWrapper state = ControllerHandler.INSTANCE.getActiveControllerState();
 		
 		if(state.dpadUpJustPressed || (state.leftStickAngle > 45 && state.leftStickAngle < 135 && state.leftStickY > 0.5f)){
-			if(mousedButton == null && hasButtons) {
-				mousedButton = buttons.get(0);
-				Mouse.setCursorPosition(mousedButton.x + mousedButton.width / 2, mousedButton.y + mousedButton.height / 2);
-			}
+			System.out.println("Up just pressed");
 		}
 	}
 	

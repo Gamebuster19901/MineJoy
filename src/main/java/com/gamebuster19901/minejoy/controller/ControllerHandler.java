@@ -9,12 +9,45 @@ import com.studiohartman.jamepad.ControllerUnpluggedException;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 public enum ControllerHandler {
 	INSTANCE;
+	private final Thread CONTROLLER_THREAD = new Thread() {
+		public void run() {
+			while(true) {
+				if(controllerManager.getNumControllers() > 0) {
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						break;
+					}
+					ControllerStateWrapper state = getActiveControllerState();
+					
+					state.leftStickJustClicked = !lastState.leftStickClick && state.leftStickClick;
+					state.rightStickJustClicked = !lastState.rightStickClick &&  state.rightStickClick;
+					state.aJustPressed = !lastState.a && state.a;
+					System.out.println(state.aJustPressed);
+					state.bJustPressed = !lastState.b && state.b;
+					state.xJustPressed = !lastState.x && state.x;
+					state.yJustPressed = !lastState.y && state.y;
+					state.lbJustPressed = !lastState.lb && state.lb;
+					state.rbJustPressed = !lastState.rb && state.rb;
+					state.startJustPressed = !lastState.start && state.start;
+					state.backJustPressed = !lastState.back && state.back;
+					state.guideJustPressed = !lastState.guide && state.guide;
+					state.dpadUpJustPressed = !lastState.dpadUp && state.dpadUp;
+					state.dpadDownJustPressed = !lastState.dpadDown && state.dpadDown;
+					state.dpadLeftJustPressed = !lastState.dpadLeft && state.dpadLeft;
+					state.dpadRightJustPressed = !lastState.dpadRight && state.dpadRight;
+					
+					MinecraftForge.EVENT_BUS.post(new ControllerEvent(activeController, state, getActiveControllerIndex()));
+				}
+			}
+		}
+	};
 	
 	private ControllerManager controllerManager;
+	private volatile ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
 	private int activeController = 0;
 	
 	public void init(){
@@ -23,26 +56,23 @@ public enum ControllerHandler {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				System.out.println("Game ended, shutting down Minejoy and Jamepad!");
+				if(CONTROLLER_THREAD.isAlive()) {
+					CONTROLLER_THREAD.interrupt();
+					CONTROLLER_THREAD.stop();
+				}
 				ControllerHandler.this.controllerManager.quitSDLGamepad();
 			}
 		});
+		CONTROLLER_THREAD.start();
 		vibrate(activeController, 1f, 1f, 1500);
-	}
-	
-	@SubscribeEvent
-	public void onTick(ClientTickEvent e) {
-		if(controllerManager.getNumControllers() > 0) {
-			ControllerState state = controllerManager.getState(activeController);
-			MinecraftForge.EVENT_BUS.post(new ControllerEvent(activeController, getActiveControllerState(), getActiveControllerIndex()));
-		}
 	}
 	
 	public ControllerIndex getActiveControllerIndex(){
 		return controllerManager.getControllerIndex(activeController);
 	}
 	
-	public ControllerState getActiveControllerState() {
-		return controllerManager.getState(activeController);
+	public synchronized ControllerStateWrapper getActiveControllerState() {
+		return new ControllerStateWrapper(controllerManager.getState(activeController));
 	}
 	
 	public int getActiveController() {
@@ -106,6 +136,11 @@ public enum ControllerHandler {
 			}
 		}.start();
 
+	}
+	
+	@SubscribeEvent
+	public void onController(ControllerEvent e) {
+		lastState = e.getControllerState();
 	}
 	
 }

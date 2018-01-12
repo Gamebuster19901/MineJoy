@@ -1,15 +1,13 @@
 package com.gamebuster19901.minejoy.controller;
 
 import com.studiohartman.jamepad.ControllerIndex;
-import com.studiohartman.jamepad.ControllerState;
-
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class ControllerEvent extends Event{
 	private int index;
-	private ControllerState state;
+	private ControllerStateWrapper state;
 	private ControllerIndex unsafe;
-	public ControllerEvent(int index, ControllerState state, ControllerIndex unsafe) {
+	public ControllerEvent(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
 		this.index = index;
 		this.state = state;
 		this.unsafe = unsafe;
@@ -23,7 +21,7 @@ public class ControllerEvent extends Event{
 		return unsafe;
 	}
 	
-	public ControllerState getControllerState() {
+	public ControllerStateWrapper getControllerState() {
 		return state;
 	}
 }
