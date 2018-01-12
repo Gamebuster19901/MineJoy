@@ -85,8 +85,12 @@ public enum ControllerHandler {
 		activeController = index;
 	}
 	
-	public ControllerState getControllerState(int index) {
-		return controllerManager.getState(index);
+	/**
+	 * Should only be called on ControllerEvent.Pre, or it will return the current state instead
+	 * of the previous state
+	 */
+	public ControllerStateWrapper getLastControllerState() {
+		return lastState;
 	}
 	
 	public ControllerIndex getControllerIndex(int index) throws ControllerUnpluggedException{
