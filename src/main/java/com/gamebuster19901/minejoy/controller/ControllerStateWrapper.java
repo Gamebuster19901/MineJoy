@@ -5,24 +5,7 @@ import com.studiohartman.jamepad.ControllerState;
 public class ControllerStateWrapper {
 	
 	public static final ControllerStateWrapper DISCONNECTED_CONTROLLER = new ControllerStateWrapper();
-	
-	public static long leftStickClickHeld = 0;
-	public static long rightStickClickHeld = 0;
-	public static long aHeld = 0;
-	public static long bHeld = 0;
-	public static long xHeld = 0;
-	public static long yHeld = 0;
-	public static long lbHeld = 0;
-	public static long rbHeld = 0;
-	public static long startHeld = 0;
-	public static long backHeld = 0;
-	public static long guideHeld = 0;
-	public static long dpadUpHeld = 0;
-	public static long dpadDownHeld = 0;
-	public static long dpadLeftHeld = 0;
-	public static long dpadRightHeld = 0;
-	
-	
+		
 	 /**
      * Whether or not the controller is currently connected.
      *
