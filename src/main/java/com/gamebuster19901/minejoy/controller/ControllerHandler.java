@@ -8,7 +8,6 @@ import com.studiohartman.jamepad.ControllerState;
 import com.studiohartman.jamepad.ControllerUnpluggedException;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public enum ControllerHandler {
 	INSTANCE;
@@ -22,6 +21,8 @@ public enum ControllerHandler {
 						break;
 					}
 					ControllerStateWrapper state = getActiveControllerState();
+					
+					MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
 					
 					state.leftStickJustClicked = !lastState.leftStickClick && state.leftStickClick;
 					state.rightStickJustClicked = !lastState.rightStickClick &&  state.rightStickClick;
@@ -39,7 +40,9 @@ public enum ControllerHandler {
 					state.dpadLeftJustPressed = !lastState.dpadLeft && state.dpadLeft;
 					state.dpadRightJustPressed = !lastState.dpadRight && state.dpadRight;
 					
-					MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
+					lastState = state;
+					
+					MinecraftForge.EVENT_BUS.post(new ControllerEvent.Post(activeController, state, getActiveControllerIndex()));
 				}
 			}
 		}
@@ -135,12 +138,5 @@ public enum ControllerHandler {
 			}
 		}.start();
 
-	}
-	
-	@SubscribeEvent
-	public void onController(ControllerEvent.Pre e) {
-		lastState = e.getControllerState();
-		MinecraftForge.EVENT_BUS.post(new ControllerEvent.Post(activeController, getActiveControllerState(), getActiveControllerIndex()));
-	}
-	
+	}	
 }
