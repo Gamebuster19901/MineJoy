@@ -142,5 +142,9 @@ public enum ControllerHandler {
 			}
 		}.start();
 
+	}
+
+	public ControllerStateWrapper getControllerState(int controller) {
+		return new ControllerStateWrapper(this.controllerManager.getState(controller));
 	}	
 }
