@@ -1,4 +1,4 @@
-package com.gamebuster19901.minejoy.controller;
+package com.gamebuster19901.minejoy.mouse;
 
 import org.lwjgl.input.Mouse;
 
