@@ -1,3 +1,7 @@
+/*
+
+//Very broken, so this is disabled
+
 package com.gamebuster19901.minejoy.gui;
 
 import java.lang.reflect.Field;
@@ -36,6 +40,15 @@ public final class GuiControllerOverlay extends Gui{
 	private GuiControllerOverlay() {}
 	
 	@SubscribeEvent
+	public void onGuiOpen(GuiScreenEvent.InitGuiEvent.Post e) {
+		GuiScreen gui = e.getGui();
+		if(e.getButtonList().size() > 0) {
+			GuiButton closestButton = getClosestButton(gui.width, 0, e.getButtonList());
+			setMousePosition(closestButton.x, closestButton.y, gui.width, gui.height);
+		}
+	}
+	
+	@SubscribeEvent
 	public void onGuiRender(GuiScreenEvent.DrawScreenEvent.Post e) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		GuiScreen gui = e.getGui();
 		GuiButton mousedButton = null;
@@ -43,7 +56,7 @@ public final class GuiControllerOverlay extends Gui{
 		ArrayList<GuiButton> buttons = (ArrayList<GuiButton>)BUTTON_FIELD.get(gui);
 		for(GuiButton b : buttons) {
 			hasButtons = true;
-			if(b.isMouseOver() && b.visible && b.enabled && Mouse.isGrabbed()) {
+			if(isMouseOver(b, e.getMouseX(), e.getMouseY()) && b.visible && b.enabled && Mouse.isGrabbed()) {
 				mousedButton = b;
 				this.drawBorder(b.x, b.y, b.width, b.height);
 				break;
@@ -96,7 +109,7 @@ public final class GuiControllerOverlay extends Gui{
 					closestButton = getClosestButton(mousedButton, buttons, Facing.RIGHT);
 				}
 			}
-			setMousePosition(closestButton.x + closestButton.width / 2, closestButton.y + closestButton.height / 2, gui.width, gui.height, res);
+			setMousePosition(closestButton.x + closestButton.width / 2, closestButton.y + closestButton.height / 2, gui.width, gui.height);
 			mousedButton = closestButton;
 			
 			if(state.a) {
@@ -157,6 +170,23 @@ public final class GuiControllerOverlay extends Gui{
 	    }
 	}
 	
+	private GuiButton getClosestButton(int x, int y, List<GuiButton> buttons) {
+		List<GuiButton>clonedButtons = new ArrayList<GuiButton>(buttons);
+		
+		GuiButton closest = buttons.get(0);
+		int distance = quickDistanceFrom(x, closest.x, y, closest.y);
+		
+		for(GuiButton b : clonedButtons) {
+			int newDistance = quickDistanceFrom(x, b.x, y, b.y);
+			if(newDistance < distance) {
+				distance = newDistance;
+				closest = b;
+			}
+		}
+		
+		return closest;
+	}
+	
 	private GuiButton getClosestButton(GuiButton center, List<GuiButton> buttons, Facing direction){
 		List<GuiButton>clonedButtons = new ArrayList<GuiButton>(buttons);
 		clonedButtons.remove(center);
@@ -192,27 +222,31 @@ public final class GuiControllerOverlay extends Gui{
 				default:
 					throw new AssertionError();
 			}
-			if(quickDistanceFrom(center, b) < distance) {
-				distance = quickDistanceFrom(center, b);
+			if(quickDistanceFrom(center.x, center.y, b.x, b.y) < distance) {
+				distance = quickDistanceFrom(center.x, center.y, b.x, b.y);
 				closest = b;
 			}
 			else {
-				System.out.println(quickDistanceFrom(center, b) + " ! < " + distance);
+				System.out.println(quickDistanceFrom(center.x, center.y, b.x, b.y) + " ! < " + distance);
 			}
 		}
 		return closest;
 	}
 	
-	private int quickDistanceFrom(GuiButton b1, GuiButton b2) {
-		int x =  b1.x - b2.x;
-		int y = b1.y - b2.y;
+	private int quickDistanceFrom(int x1, int y1, int x2, int y2) {
+		int x =  x1 - x2;
+		int y = y1 - y2;
 		return (x * x) + (y * y);
 	}
 	
-	private void setMousePosition(int x, int y, int guiWidth, int guiHeight, ScaledResolution res) {
+	private void setMousePosition(int x, int y, int guiWidth, int guiHeight) {
         int i = (this.mc.displayWidth * x / guiWidth);
         int j = (this.mc.displayHeight - 1 - (this.mc.displayHeight * y / guiHeight));
         Mouse.setCursorPosition(i, j);
+	}
+	
+	private boolean isMouseOver(GuiButton button, int mouseX, int mouseY) {
+		return mouseX >= button.x && mouseY >= button.y && mouseX < button.x + button.width && mouseY < button.y + button.height;
 	}
 	
 	private enum Facing{
@@ -254,4 +288,4 @@ public final class GuiControllerOverlay extends Gui{
 			throw new IndexOutOfBoundsException("angle must be between 0 and 360 " + angle);
 		}
 	}
-}
+}*/
