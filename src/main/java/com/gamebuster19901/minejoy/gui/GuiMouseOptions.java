@@ -4,8 +4,6 @@ import net.minecraft.client.gui.GuiScreen;
 
 public class GuiMouseOptions extends GuiScreen{
 	
-	private final GuiScreen parent;
-	
 	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
