@@ -2,10 +2,22 @@ package com.gamebuster19901.minejoy.controller;
 
 import com.studiohartman.jamepad.ControllerState;
 
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+
 public class ControllerStateWrapper {
 	
 	public static final ControllerStateWrapper DISCONNECTED_CONTROLLER = new ControllerStateWrapper();
-		
+	private static final ControllerState JAMEPAD_DISCONNECTED_CONTROLLER;
+	static {
+		try {
+			JAMEPAD_DISCONNECTED_CONTROLLER = (ControllerState) ReflectionHelper.findField(ControllerState.class, "DISCONNECTED_CONTROLLER").get(null);
+		} catch (Exception e) {
+			throw new ExceptionInInitializerError(e);
+		}
+	}
+	
+	private ControllerState jamePadState = JAMEPAD_DISCONNECTED_CONTROLLER;
+	
 	 /**
      * Whether or not the controller is currently connected.
      *
@@ -223,6 +235,7 @@ public class ControllerStateWrapper {
     public boolean dpadRightJustPressed = false;
 	
 	public ControllerStateWrapper(ControllerState state) {
+		jamePadState = state;
 		isConnected = state.isConnected;
 		controllerType = state.controllerType;
 		leftStickX = state.leftStickX;
@@ -251,6 +264,53 @@ public class ControllerStateWrapper {
 		dpadDown = state.dpadDown;
 		dpadLeft = state.dpadLeft;
 		dpadRight = state.dpadRight;
+	}
+	
+	public ControllerStateWrapper(ControllerStateWrapper state) {
+		jamePadState = state.jamePadState;
+		isConnected = state.isConnected;
+		controllerType = state.controllerType;
+		leftStickX = state.leftStickX;
+		leftStickY = state.leftStickY;
+		rightStickX = state.rightStickX;
+		rightStickY = state.rightStickY;
+		leftStickAngle = state.leftStickAngle;
+		leftStickMagnitude = state.leftStickMagnitude;
+		rightStickAngle = state.rightStickAngle;
+		rightStickMagnitude = state.rightStickMagnitude;
+		leftStickClick = state.leftStickClick;
+		leftStickJustClicked = state.leftStickJustClicked; //
+		rightStickClick = state.rightStickClick;
+		rightStickJustClicked = state.rightStickJustClicked; //
+		leftTrigger = state.leftTrigger;
+		rightTrigger = state.rightTrigger;
+		
+		a = state.a;
+		aJustPressed = state.aJustPressed; //
+		b = state.b;
+		bJustPressed = state.bJustPressed;
+		x = state.x;
+		xJustPressed = state.xJustPressed;
+		y = state.y;
+		yJustPressed = state.yJustPressed;
+		lb = state.lb;
+		lbJustPressed = state.lbJustPressed;
+		rb = state.rb;
+		rbJustPressed = state.rbJustPressed;
+		start = state.start;
+		startJustPressed = state.rbJustPressed;
+		back = state.back;
+		backJustPressed = state.backJustPressed;
+		guide = state.guide;
+		guideJustPressed = state.guideJustPressed;
+		dpadUp = state.dpadUp;
+		dpadUpJustPressed = state.dpadUpJustPressed;
+		dpadDown = state.dpadDown;
+		dpadDownJustPressed = state.dpadDownJustPressed;
+		dpadLeft = state.dpadLeft;
+		dpadLeftJustPressed = state.dpadLeftJustPressed;
+		dpadRight = state.dpadRight;
+		dpadRightJustPressed = state.dpadRightJustPressed;
 	}
 	
 	private ControllerStateWrapper() {}

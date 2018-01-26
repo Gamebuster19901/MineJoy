@@ -2,18 +2,24 @@ package com.gamebuster19901.minejoy.controller;
 
 import java.util.ArrayList;
 
+import com.gamebuster19901.minejoy.Minejoy;
 import com.studiohartman.jamepad.ControllerIndex;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 import com.studiohartman.jamepad.ControllerUnpluggedException;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 public enum ControllerHandler {
 	INSTANCE;
+	
+	private boolean previouslyInitialized = false;
+	
 	private final Thread CONTROLLER_THREAD = new Thread() {
 		public void run() {
-			while(true) {
+			while(Minejoy.isEnabled()) {
 				if(controllerManager.getNumControllers() > 0) {
 					try {
 						Thread.sleep(1);
@@ -22,51 +28,97 @@ public enum ControllerHandler {
 					}
 					ControllerStateWrapper state = getActiveControllerState();
 					
-					MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
+					MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Pre(activeController, state, getActiveControllerIndex()));
 					
-					state.leftStickJustClicked = !lastState.leftStickClick && state.leftStickClick;
-					state.rightStickJustClicked = !lastState.rightStickClick &&  state.rightStickClick;
-					state.aJustPressed = !lastState.a && state.a;
-					state.bJustPressed = !lastState.b && state.b;
-					state.xJustPressed = !lastState.x && state.x;
-					state.yJustPressed = !lastState.y && state.y;
-					state.lbJustPressed = !lastState.lb && state.lb;
-					state.rbJustPressed = !lastState.rb && state.rb;
-					state.startJustPressed = !lastState.start && state.start;
-					state.backJustPressed = !lastState.back && state.back;
-					state.guideJustPressed = !lastState.guide && state.guide;
-					state.dpadUpJustPressed = !lastState.dpadUp && state.dpadUp;
-					state.dpadDownJustPressed = !lastState.dpadDown && state.dpadDown;
-					state.dpadLeftJustPressed = !lastState.dpadLeft && state.dpadLeft;
-					state.dpadRightJustPressed = !lastState.dpadRight && state.dpadRight;
+					state.leftStickJustClicked = !lastNoGLState.leftStickClick && state.leftStickClick;
+					state.rightStickJustClicked = !lastNoGLState.rightStickClick &&  state.rightStickClick;
+					state.aJustPressed = !lastNoGLState.a && state.a;
+					state.bJustPressed = !lastNoGLState.b && state.b;
+					state.xJustPressed = !lastNoGLState.x && state.x;
+					state.yJustPressed = !lastNoGLState.y && state.y;
+					state.lbJustPressed = !lastNoGLState.lb && state.lb;
+					state.rbJustPressed = !lastNoGLState.rb && state.rb;
+					state.startJustPressed = !lastNoGLState.start && state.start;
+					state.backJustPressed = !lastNoGLState.back && state.back;
+					state.guideJustPressed = !lastNoGLState.guide && state.guide;
+					state.dpadUpJustPressed = !lastNoGLState.dpadUp && state.dpadUp;
+					state.dpadDownJustPressed = !lastNoGLState.dpadDown && state.dpadDown;
+					state.dpadLeftJustPressed = !lastNoGLState.dpadLeft && state.dpadLeft;
+					state.dpadRightJustPressed = !lastNoGLState.dpadRight && state.dpadRight;
 					
-					lastState = state;
+					lastNoGLState = state;
 					
-					MinecraftForge.EVENT_BUS.post(new ControllerEvent.Post(activeController, state, getActiveControllerIndex()));
+					MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Post(activeController, state, getActiveControllerIndex()));
 				}
 			}
 		}
 	};
 	
+	@SubscribeEvent
+	public final void everyTick(ClientTickEvent e) {
+		if(controllerManager.getNumControllers() > 0 && Minejoy.isEnabled()) {
+			ControllerStateWrapper state = getActiveControllerState();
+			
+			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
+			
+			state.leftStickJustClicked = !lastGLState.leftStickClick && state.leftStickClick;
+			state.rightStickJustClicked = !lastGLState.rightStickClick &&  state.rightStickClick;
+			state.aJustPressed = !lastGLState.a && state.a;
+			state.bJustPressed = !lastGLState.b && state.b;
+			state.xJustPressed = !lastGLState.x && state.x;
+			state.yJustPressed = !lastGLState.y && state.y;
+			state.lbJustPressed = !lastGLState.lb && state.lb;
+			state.rbJustPressed = !lastGLState.rb && state.rb;
+			state.startJustPressed = !lastGLState.start && state.start;
+			state.backJustPressed = !lastGLState.back && state.back;
+			state.guideJustPressed = !lastGLState.guide && state.guide;
+			state.dpadUpJustPressed = !lastGLState.dpadUp && state.dpadUp;
+			state.dpadDownJustPressed = !lastGLState.dpadDown && state.dpadDown;
+			state.dpadLeftJustPressed = !lastGLState.dpadLeft && state.dpadLeft;
+			state.dpadRightJustPressed = !lastGLState.dpadRight && state.dpadRight;
+			
+			lastGLState = state;
+			
+			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Post(activeController, state, getActiveControllerIndex()));
+		}
+	}
+	
 	private ControllerManager controllerManager;
-	private volatile ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+	private volatile ControllerStateWrapper lastNoGLState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+	private ControllerStateWrapper lastGLState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
 	private int activeController = 0;
 	
 	public void init(){
 		controllerManager = new ControllerManager();
 		controllerManager.initSDLGamepad();
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				System.out.println("Game ended, shutting down Minejoy and Jamepad!");
-				if(CONTROLLER_THREAD.isAlive()) {
-					CONTROLLER_THREAD.interrupt();
-					CONTROLLER_THREAD.stop();
+		if(!previouslyInitialized) {
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					System.out.println("Game ended, shutting down Minejoy and Jamepad!");
+					if(CONTROLLER_THREAD.isAlive()) {
+						CONTROLLER_THREAD.interrupt();
+						CONTROLLER_THREAD.stop();
+					}
+					ControllerHandler.this.controllerManager.quitSDLGamepad();
 				}
-				ControllerHandler.this.controllerManager.quitSDLGamepad();
-			}
-		});
+			});
+			previouslyInitialized = true;
+		}
+		int index = Minejoy.getConfig().getInt("defaultController", "", 0, 0, Integer.MAX_VALUE, "");
+		if(isControllerIndexPluggedIn(index)) {
+			activeController = index;
+		}
 		CONTROLLER_THREAD.start();
 		vibrate(activeController, 1f, 1f, 1500);
+	}
+	
+	public void disable() {
+		System.out.println("Minejoy disabled, shutting down Minejoy and Jamepad!");
+		if(CONTROLLER_THREAD.isAlive()) {
+			CONTROLLER_THREAD.interrupt();
+			CONTROLLER_THREAD.stop();
+		}
+		ControllerHandler.this.controllerManager.quitSDLGamepad();
 	}
 	
 	public ControllerIndex getActiveControllerIndex(){
@@ -74,7 +126,10 @@ public enum ControllerHandler {
 	}
 	
 	public synchronized ControllerStateWrapper getActiveControllerState() {
-		return new ControllerStateWrapper(controllerManager.getState(activeController));
+		if(controllerManager.getState(activeController).isConnected) {
+			return new ControllerStateWrapper(controllerManager.getState(activeController));
+		}
+		return ControllerStateWrapper.DISCONNECTED_CONTROLLER;
 	}
 	
 	public int getActiveController() {
@@ -86,15 +141,31 @@ public enum ControllerHandler {
 	}
 	
 	/**
-	 * Should only be called on ControllerEvent.Pre, or it will return the current state instead
-	 * of the previous state
+	 * Should only be called on ControllerEventNoGL.Pre, or it will return the current state instead
+	 * of the previous state.
+	 * 
+	 * This wrapper will reflect the state of the controller 1 millisecond ago
 	 */
-	public ControllerStateWrapper getLastControllerState() {
-		return lastState;
+	public ControllerStateWrapper getLastControllerNoGLState() {
+		return lastNoGLState;
 	}
 	
-	public ControllerIndex getControllerIndex(int index) throws ControllerUnpluggedException{
+	/**
+	 * Should only be called on ControllerEvent.Pre, or it will return the current state instead
+	 * of the previous state.
+	 * 
+	 * This wrapper will reflect the state of the controller 1 tick ago
+	 */
+	public ControllerStateWrapper getLastControllerGLState() {
+		return lastGLState;
+	}
+	
+	public ControllerIndex getControllerIndex(int index){
 		return controllerManager.getControllerIndex(index);
+	}
+	
+	public boolean isControllerIndexPluggedIn(int index) {
+		return getControllerIndex(index).isConnected();
 	}
 	
 	public ArrayList<ControllerState> getAllControllerStates(){
@@ -146,5 +217,5 @@ public enum ControllerHandler {
 
 	public ControllerStateWrapper getControllerState(int controller) {
 		return new ControllerStateWrapper(this.controllerManager.getState(controller));
-	}	
+	}
 }

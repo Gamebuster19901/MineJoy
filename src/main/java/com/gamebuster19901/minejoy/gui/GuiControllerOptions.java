@@ -80,4 +80,9 @@ public class GuiControllerOptions extends GuiScreen{
 			}
 		}
 	}
+	
+	@Override
+	public void keyTyped(char c, int keycode) {
+		System.out.println((int) c + "" + keycode);
+	}
 }
