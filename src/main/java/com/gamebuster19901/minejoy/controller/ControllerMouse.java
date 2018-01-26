@@ -11,12 +11,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -27,6 +32,7 @@ public enum ControllerMouse{
 	private static final Minecraft mc = Minecraft.getMinecraft();
 	public static final Field MOVEMENT_FIELD = ReflectionHelper.findField(EntityPlayerSP.class, "movementInput", "field_71158_b");
 	public static final Field BUTTON_FIELD = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
+	
 	public static final Method SEND_BLOCK_CLICK_TO_CONTROLLER_METHOD = ReflectionHelper.findMethod(Minecraft.class, "sendClickBlockToController", "func_147115_a", boolean.class);
 	public static final Method CLICK_MOUSE_METHOD = ReflectionHelper.findMethod(Minecraft.class, "clickMouse", "func_147116_af");
 	public static final Method RIGHT_CLICK_MOUSE_METHOD = ReflectionHelper.findMethod(Minecraft.class, "rightClickMouse", "func_147121_ag");
@@ -34,6 +40,7 @@ public enum ControllerMouse{
 	public static final Method MOUSE_DRAG_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClickMove", "func_146273_a", int.class, int.class, int.class, long.class);
  	public static final Method MOUSE_RELEASE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseReleased", "func_146286_b", int.class, int.class, int.class);
  	public static final Method KEY_TYPE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "keyTyped", "func_73869_a", char.class, int.class);
+ 	public static final Method SLOT_CLICKED_METHOD = ReflectionHelper.findMethod(GuiContainer.class, "handleMouseClick", "func_184098_a", Slot.class, int.class, int.class, ClickType.class);
  	
  	private float deltaX = 0;
  	private float deltaY = 0;
@@ -151,6 +158,18 @@ public enum ControllerMouse{
 				MOUSE_DRAG_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 1, 0l);
 			}
 			
+			if(state.yJustPressed) {
+				if(gui instanceof GuiContainer) {
+					GuiContainer guicontainer = (GuiContainer) gui;
+					Slot slot = guicontainer.getSlotUnderMouse();
+					if(slot != null) {
+						if(!MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.MouseInputEvent(gui))) {
+							SLOT_CLICKED_METHOD.invoke(guicontainer, slot, slot.getSlotIndex(), 0, ClickType.QUICK_MOVE);
+						}
+					}
+				}
+			}
+			
 			if(state.bJustPressed || state.backJustPressed) {
 				KEY_TYPE_METHOD.invoke(gui, (char)0x1B, 1);
 				System.out.println("pressed b");
@@ -196,10 +215,12 @@ public enum ControllerMouse{
 					prevLoc = location;
 				}
 				if(prevLoc != null) {
-					if (state.leftTrigger > 0.5 && location.getDistance(prevLoc.getX(), prevLoc.getY(), prevLoc.getZ()) >= 1 && leftTriggerCooldown < 40) {
-						RIGHT_CLICK_MOUSE_METHOD.invoke(mc);
-						leftTriggerCooldown = 40;
-						prevLoc = location;
+					if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
+						if (state.leftTrigger > 0.5 && location.getDistance(prevLoc.getX(), prevLoc.getY(), prevLoc.getZ()) >= 1 && leftTriggerCooldown < 40) {
+							RIGHT_CLICK_MOUSE_METHOD.invoke(mc);
+							leftTriggerCooldown = 40;
+							prevLoc = location;
+						}
 					}
 				}
 				else {
@@ -208,10 +229,12 @@ public enum ControllerMouse{
 			}
 		}
 		if(player != null) {
-			if(rightTriggerCooldown == 0 && mc.currentScreen == null && state.rightTrigger > 0.5 && mc.inGameHasFocus) {
-				KeyBinding.setKeyBindState(mc.gameSettings.keyBindAdvancements.getKeyCode(), true);
-				SEND_BLOCK_CLICK_TO_CONTROLLER_METHOD.invoke(mc, true);
-				rightTriggerCooldown = 2;
+			if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
+				if(rightTriggerCooldown == 0 && mc.currentScreen == null && state.rightTrigger > 0.5 && mc.inGameHasFocus) {
+					KeyBinding.setKeyBindState(mc.gameSettings.keyBindAdvancements.getKeyCode(), true);
+					SEND_BLOCK_CLICK_TO_CONTROLLER_METHOD.invoke(mc, true);
+					rightTriggerCooldown = 2;
+				}
 			}
 		}
 		prevA = state.a;
@@ -231,6 +254,5 @@ public enum ControllerMouse{
 	
 	private int getMouseY(GuiScreen gui) {
 		return gui.height - Mouse.getY() * gui.height / this.mc.displayHeight - 1;
-	}
-	
+	}	
 }
