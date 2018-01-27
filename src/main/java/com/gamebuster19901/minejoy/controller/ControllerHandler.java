@@ -21,9 +21,14 @@ public enum ControllerHandler {
 		public void run() {
 			while(Minejoy.isEnabled()) {
 				if(controllerManager.getNumControllers() > 0) {
+					Thread.currentThread().setName("Minejoy Controller Thread");
 					try {
 						Thread.sleep(1);
+						if (Thread.interrupted()) {
+						      throw new InterruptedException();
+						}
 					} catch (InterruptedException e) {
+						Minejoy.setAvailibility(false);
 						break;
 					}
 					ControllerStateWrapper state = getActiveControllerState();
@@ -94,10 +99,11 @@ public enum ControllerHandler {
 		if(!previouslyInitialized) {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
+					Thread.currentThread().setName("Minejoy Shutdown Thread");
 					System.out.println("Game ended, shutting down Minejoy and Jamepad!");
 					if(CONTROLLER_THREAD.isAlive()) {
-						CONTROLLER_THREAD.interrupt();
-						CONTROLLER_THREAD.stop();
+						Minejoy.setAvailibility(false);
+						while(CONTROLLER_THREAD.isAlive());
 					}
 					ControllerHandler.this.controllerManager.quitSDLGamepad();
 				}
@@ -115,8 +121,8 @@ public enum ControllerHandler {
 	public void disable() {
 		System.out.println("Minejoy disabled, shutting down Minejoy and Jamepad!");
 		if(CONTROLLER_THREAD.isAlive()) {
-			CONTROLLER_THREAD.interrupt();
-			CONTROLLER_THREAD.stop();
+			Minejoy.setAvailibility(false);
+			while(CONTROLLER_THREAD.isAlive());
 		}
 		ControllerHandler.this.controllerManager.quitSDLGamepad();
 	}
