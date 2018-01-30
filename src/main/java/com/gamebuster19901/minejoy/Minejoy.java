@@ -6,9 +6,11 @@ import static com.gamebuster19901.minejoy.Minejoy.VERSION;
 
 import java.awt.HeadlessException;
 
+import com.gamebuster19901.minejoy.binding.ControllerButtonBinding;
 import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
 import com.gamebuster19901.minejoy.controller.ControllerMouse;
+import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
 import com.gamebuster19901.minejoy.controller.MovementInputFromOptionsMinejoy;
 import com.gamebuster19901.minejoy.controller.PlayerControllerMPMinejoy;
 import com.gamebuster19901.minejoy.controller.layout.Default;
@@ -41,6 +43,8 @@ public class Minejoy {
 			throw new HeadlessException("Remove MineJoy from the server, it is for clients only");
 		}
 		CONFIG = new Configuration(e.getSuggestedConfigurationFile());
+		
+		Minecraft.getMinecraft().gameSettings.keyBindUseItem = new ControllerButtonBinding(Minecraft.getMinecraft().gameSettings.keyBindUseItem, ControllerStateWrapper.Button.BACK.getIndex());
 		
 		ControllerHandler.INSTANCE.init();
 		

@@ -17,6 +17,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.EnumAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
@@ -216,10 +217,12 @@ public enum ControllerMouse{
 				}
 				if(prevLoc != null) {
 					if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
-						if (state.leftTrigger > 0.5 && location.getDistance(prevLoc.getX(), prevLoc.getY(), prevLoc.getZ()) >= 1 && leftTriggerCooldown < 40) {
-							RIGHT_CLICK_MOUSE_METHOD.invoke(mc);
-							leftTriggerCooldown = 40;
-							prevLoc = location;
+						if(player.getActiveItemStack().getItemUseAction().equals(EnumAction.NONE)) {
+							if (state.leftTrigger > 0.5 && location.getDistance(prevLoc.getX(), prevLoc.getY(), prevLoc.getZ()) >= 1 && leftTriggerCooldown < 40) {
+								RIGHT_CLICK_MOUSE_METHOD.invoke(mc);
+								leftTriggerCooldown = 40;
+								prevLoc = location;
+							}
 						}
 					}
 				}
@@ -228,7 +231,7 @@ public enum ControllerMouse{
 				}
 			}
 		}
-		if(player != null) {
+		if(player != null && mc.objectMouseOver != null) {
 			if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
 				if(rightTriggerCooldown == 0 && mc.currentScreen == null && state.rightTrigger > 0.5 && mc.inGameHasFocus) {
 					KeyBinding.setKeyBindState(mc.gameSettings.keyBindAdvancements.getKeyCode(), true);
