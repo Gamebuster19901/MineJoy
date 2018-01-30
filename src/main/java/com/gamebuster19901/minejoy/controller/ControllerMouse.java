@@ -209,12 +209,7 @@ public enum ControllerMouse{
 				if((state.rightTrigger > 0.5 && prevRightTrigger <= 0.5)) {
 					CLICK_MOUSE_METHOD.invoke(mc);
 				}
-				
-				if(state.leftTrigger > 0.5 && (leftTriggerCooldown == 0)) {
-					RIGHT_CLICK_MOUSE_METHOD.invoke(mc);
-					leftTriggerCooldown = 40;
-					prevLoc = location;
-				}
+
 				if(prevLoc != null) {
 					if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
 						if(player.getActiveItemStack().getItemUseAction().equals(EnumAction.NONE)) {

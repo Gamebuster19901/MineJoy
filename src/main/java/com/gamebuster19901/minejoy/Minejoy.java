@@ -44,7 +44,7 @@ public class Minejoy {
 		}
 		CONFIG = new Configuration(e.getSuggestedConfigurationFile());
 		
-		Minecraft.getMinecraft().gameSettings.keyBindUseItem = new ControllerButtonBinding(Minecraft.getMinecraft().gameSettings.keyBindUseItem, ControllerStateWrapper.Button.BACK.getIndex());
+		Minecraft.getMinecraft().gameSettings.keyBindUseItem = new ControllerButtonBinding(Minecraft.getMinecraft().gameSettings.keyBindUseItem, ControllerStateWrapper.Button.LT.getIndex());
 		
 		ControllerHandler.INSTANCE.init();
 		
