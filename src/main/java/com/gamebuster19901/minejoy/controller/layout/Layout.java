@@ -32,9 +32,9 @@ public abstract class Layout{
 	
 	public abstract LayoutWrapper getWrapper(ControllerStateWrapper state);
 	
-	protected abstract class LayoutWrapper extends ControllerStateWrapper{
+	public abstract class LayoutWrapper extends ControllerStateWrapper{
 
-		public LayoutWrapper(ControllerStateWrapper state) {
+		protected LayoutWrapper(ControllerStateWrapper state) {
 			super(state);
 			interpret();
 		}

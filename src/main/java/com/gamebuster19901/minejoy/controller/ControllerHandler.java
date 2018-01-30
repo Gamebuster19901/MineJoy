@@ -3,6 +3,7 @@ package com.gamebuster19901.minejoy.controller;
 import java.util.ArrayList;
 
 import com.gamebuster19901.minejoy.Minejoy;
+import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.studiohartman.jamepad.ControllerIndex;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
@@ -144,6 +145,13 @@ public enum ControllerHandler {
 		return ControllerStateWrapper.DISCONNECTED_CONTROLLER;
 	}
 	
+	public synchronized Layout.LayoutWrapper getModifiedActiveContorllerState() {
+		if(controllerManager.getState(activeController).isConnected) {
+			return Layout.getLayout().getWrapper(getActiveControllerState());
+		}
+		return Layout.getLayout().getWrapper(ControllerStateWrapper.DISCONNECTED_CONTROLLER);
+	}
+	
 	public int getActiveController() {
 		return activeController;
 	}
@@ -156,7 +164,7 @@ public enum ControllerHandler {
 	 * Should only be called on ControllerEventNoGL.Pre, or it will return the current state instead
 	 * of the previous state.
 	 * 
-	 * This wrapper will reflect the state of the controller 1 millisecond ago
+	 * This wrapper will reflect the unmodified state of the controller 1 millisecond ago
 	 */
 	public ControllerStateWrapper getLastControllerNoGLState() {
 		return lastNoGLState;
@@ -166,10 +174,34 @@ public enum ControllerHandler {
 	 * Should only be called on ControllerEvent.Pre, or it will return the current state instead
 	 * of the previous state.
 	 * 
-	 * This wrapper will reflect the state of the controller 1 tick ago
+	 * This wrapper will reflect the unmodified state of the controller 1 tick ago
 	 */
 	public ControllerStateWrapper getLastControllerGLState() {
 		return lastGLState;
+	}
+	
+	/**
+	 * Should only be called on ControllerEventNoGL.Pre, or it will return the current state instead
+	 * of the previous state.
+	 * 
+	 * This wrapper will reflect the state of the controller 1 millisecond ago, as modified by any enabled layouts
+	 * 
+	 * @see com.gamebuster19901.minejoy.controller.layout.Layout
+	 */
+	public Layout.LayoutWrapper getModifiedLastControllerNoGLState(){
+		return Layout.getLayout().getWrapper(lastNoGLState);
+	}
+	
+	/**
+	 * Should only be called on ControllerEvent.Pre, or it will return the current state instead
+	 * of the previous state.
+	 * 
+	 * This wrapper will reflect the unmodified state of the controller 1 tick ago, as modified by any enabled layouts
+	 * 
+	 * @see com.gamebuster19901.minejoy.controller.layout.Layout
+	 */
+	public Layout.LayoutWrapper getModifiedLastControllerGLState() {
+		return Layout.getLayout().getWrapper(lastGLState);
 	}
 	
 	public ControllerIndex getControllerIndex(int index){
@@ -229,5 +261,9 @@ public enum ControllerHandler {
 
 	public ControllerStateWrapper getControllerState(int controller) {
 		return new ControllerStateWrapper(this.controllerManager.getState(controller));
+	}
+	
+	public Layout.LayoutWrapper getModifiedControllerState(int controller) {
+		return Layout.getLayout().getWrapper(getControllerState(controller));
 	}
 }
