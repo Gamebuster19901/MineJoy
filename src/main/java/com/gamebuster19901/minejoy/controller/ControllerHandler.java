@@ -51,6 +51,9 @@ public enum ControllerHandler {
 					state.dpadLeftJustPressed = !lastNoGLState.dpadLeft && state.dpadLeft;
 					state.dpadRightJustPressed = !lastNoGLState.dpadRight && state.dpadRight;
 					
+					state.leftTriggerJustReachedThreshold = lastNoGLState.leftTrigger <= 0.5 && state.leftTrigger > 0.5;
+					state.rightTriggerJustReachedThreshold = lastNoGLState.rightTrigger <= 0.5 && state.rightTrigger > 0.5;
+					
 					lastNoGLState = state;
 					
 					MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Post(activeController, state, getActiveControllerIndex()));
@@ -81,6 +84,9 @@ public enum ControllerHandler {
 			state.dpadDownJustPressed = !lastGLState.dpadDown && state.dpadDown;
 			state.dpadLeftJustPressed = !lastGLState.dpadLeft && state.dpadLeft;
 			state.dpadRightJustPressed = !lastGLState.dpadRight && state.dpadRight;
+			
+			state.leftTriggerJustReachedThreshold = lastGLState.leftTrigger <= 0.5 && state.leftTrigger > 0.5;
+			state.rightTriggerJustReachedThreshold = lastGLState.rightTrigger <= 0.5 && state.rightTrigger > 0.5;
 			
 			lastGLState = state;
 			

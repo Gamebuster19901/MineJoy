@@ -86,11 +86,22 @@ public class ControllerStateWrapper {
      * The position of the left trigger between 0 and 1
      */
     public float leftTrigger = 0;
+    
+    /**
+     * Whether or not the left trigger has just reached it's threshold: I.E. Just pressed beyond 50%
+     */
+    public boolean leftTriggerJustReachedThreshold = false;
 
     /**
      * The position of the right trigger between 0 and 1
      */
     public float rightTrigger = 0;
+    
+    /**
+     * Whether or not the right trigger has just reached it's threshold: I.E. Just pressed beyond 50%
+     */
+    
+    public boolean rightTriggerJustReachedThreshold = false;
 
     /**
      * Whether or not the left stick was just is clicked in
@@ -282,8 +293,11 @@ public class ControllerStateWrapper {
 		leftStickJustClicked = state.leftStickJustClicked; //
 		rightStickClick = state.rightStickClick;
 		rightStickJustClicked = state.rightStickJustClicked; //
+		
 		leftTrigger = state.leftTrigger;
+		leftTriggerJustReachedThreshold = state.leftTriggerJustReachedThreshold;
 		rightTrigger = state.rightTrigger;
+		rightTriggerJustReachedThreshold = state.rightTriggerJustReachedThreshold;
 		
 		a = state.a;
 		aJustPressed = state.aJustPressed; //
@@ -315,4 +329,127 @@ public class ControllerStateWrapper {
 	
 	private ControllerStateWrapper() {}
 	
+	public static enum Button{
+		A(0),
+		B(1),
+		X(2),
+		Y(3),
+		LB(4),
+		RB(5),
+		START(6),
+		BACK(7),
+		GUIDE(8),
+		D_PAD_UP(9),
+		D_PAD_DOWN(10),
+		D_PAD_LEFT(11),
+		D_PAD_RIGHT(12),
+		LEFT_STICK_BUTTON(13),
+		RIGHT_STICK_BUTTON(14),
+		
+		LT(15),
+		RT(16);
+		
+		
+		int index;
+		
+		private Button(int index) {
+			this.index = index;
+		}
+		
+		public int getIndex() {
+			return index;
+		}
+		
+		/**
+		 * 
+		 * @param index
+		 * @return the button of the specified index
+		 * @throws IndexOutOfBoundsException if there is no button with that index
+		 */
+		public static Button getButton(int index) {
+			return Button.values()[index];
+		}
+		
+		public boolean isPressed(ControllerStateWrapper controllerState) {
+			switch(this) {
+				case A:
+					return controllerState.a;
+				case B:
+					return controllerState.b;
+				case BACK:
+					return controllerState.back;
+				case D_PAD_DOWN:
+					return controllerState.dpadDown;
+				case D_PAD_LEFT:
+					return controllerState.dpadLeft;
+				case D_PAD_RIGHT:
+					return controllerState.dpadRight;
+				case D_PAD_UP:
+					return controllerState.dpadUp;
+				case GUIDE:
+					return controllerState.guide;
+				case LB:
+					return controllerState.lb;
+				case LEFT_STICK_BUTTON:
+					return controllerState.leftStickClick;
+				case RB:
+					return controllerState.rb;
+				case RIGHT_STICK_BUTTON:
+					return controllerState.rightStickClick;
+				case START:
+					return controllerState.start;
+				case X:
+					return controllerState.x;
+				case Y:
+					return controllerState.y;
+				case LT:
+					return controllerState.leftTrigger > 0.5;
+				case RT:
+					return controllerState.leftTrigger > 0.5;
+				default:
+					throw new AssertionError();
+			}
+		}
+		
+		public boolean justPressed(ControllerStateWrapper controllerState) {
+			switch(this) {
+				case A:
+					return controllerState.aJustPressed;
+				case B:
+					return controllerState.bJustPressed;
+				case BACK:
+					return controllerState.backJustPressed;
+				case D_PAD_DOWN:
+					return controllerState.dpadDownJustPressed;
+				case D_PAD_LEFT:
+					return controllerState.dpadLeftJustPressed;
+				case D_PAD_RIGHT:
+					return controllerState.dpadRightJustPressed;
+				case D_PAD_UP:
+					return controllerState.dpadUpJustPressed;
+				case GUIDE:
+					return controllerState.guideJustPressed;
+				case LB:
+					return controllerState.lbJustPressed;
+				case LEFT_STICK_BUTTON:
+					return controllerState.leftStickJustClicked;
+				case RB:
+					return controllerState.rbJustPressed;
+				case RIGHT_STICK_BUTTON:
+					return controllerState.rightStickJustClicked;
+				case START:
+					return controllerState.startJustPressed;
+				case X:
+					return controllerState.xJustPressed;
+				case Y:
+					return controllerState.yJustPressed;
+				case LT:
+					return controllerState.leftTriggerJustReachedThreshold;
+				case RT:
+					return controllerState.rightTriggerJustReachedThreshold;
+				default:
+					throw new AssertionError();
+			}
+		}
+	}
 }
