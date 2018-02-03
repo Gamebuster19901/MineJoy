@@ -104,7 +104,6 @@ public enum ControllerMouse{
  	}
  	
  	private BlockPos prevLoc;
- 	private int rightTriggerCooldown = 0;
  	private int leftTriggerCooldown = 0;
  	private boolean prevA = false;
  	private boolean prevX = false;
@@ -226,24 +225,13 @@ public enum ControllerMouse{
 				}
 			}
 		}
-		if(player != null && mc.objectMouseOver != null) {
-			if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
-				if(rightTriggerCooldown == 0 && mc.currentScreen == null && state.rightTrigger > 0.5 && mc.inGameHasFocus) {
-					KeyBinding.setKeyBindState(mc.gameSettings.keyBindAdvancements.getKeyCode(), true);
-					SEND_BLOCK_CLICK_TO_CONTROLLER_METHOD.invoke(mc, true);
-					rightTriggerCooldown = 2;
-				}
-			}
-		}
+
 		prevA = state.a;
 		prevX = state.x;
-		if(rightTriggerCooldown > 0) {
-			rightTriggerCooldown--;
-		}
+
 		if(leftTriggerCooldown > 0) {
 			leftTriggerCooldown--;
 		}
-		prevRightTrigger = state.rightTrigger;
 	}
 	
 	private int getMouseX(GuiScreen gui) {

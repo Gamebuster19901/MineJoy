@@ -19,6 +19,7 @@ import com.gamebuster19901.minejoy.controller.layout.SouthPaw;
 import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
@@ -44,7 +45,10 @@ public class Minejoy {
 		}
 		CONFIG = new Configuration(e.getSuggestedConfigurationFile());
 		
-		Minecraft.getMinecraft().gameSettings.keyBindUseItem = new ControllerButtonBinding(Minecraft.getMinecraft().gameSettings.keyBindUseItem, ControllerStateWrapper.Button.LT.getIndex());
+		GameSettings settings = Minecraft.getMinecraft().gameSettings;
+		
+		settings.keyBindUseItem = new ControllerButtonBinding(settings.keyBindUseItem, ControllerStateWrapper.Button.LT.getIndex());
+		settings.keyBindAttack = new ControllerButtonBinding(settings.keyBindAttack, ControllerStateWrapper.Button.RT.getIndex());
 		
 		ControllerHandler.INSTANCE.init();
 		
