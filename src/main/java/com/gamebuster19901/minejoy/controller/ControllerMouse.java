@@ -10,6 +10,7 @@ import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -157,6 +158,7 @@ public enum ControllerMouse{
 			else if(state.x && prevX) {
 				MOUSE_DRAG_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 1, 0l);
 			}
+
 			
 			if(state.yJustPressed) {
 				if(gui instanceof GuiContainer) {
@@ -170,10 +172,10 @@ public enum ControllerMouse{
 				}
 			}
 			
-			if(state.bJustPressed || state.backJustPressed) {
+			if(state.bJustPressed || state.backJustPressed || state.startJustPressed || state.guideJustPressed) {
 				KEY_TYPE_METHOD.invoke(gui, (char)0x1B, 1);
-				System.out.println("pressed b");
 			}
+			
 		}
 		else {
 			if(player != null) {
@@ -207,6 +209,10 @@ public enum ControllerMouse{
 				
 				if((state.rightTrigger > 0.5 && prevRightTrigger <= 0.5)) {
 					CLICK_MOUSE_METHOD.invoke(mc);
+				}
+				
+				if(state.startJustPressed || state.guideJustPressed) {
+					mc.displayInGameMenu();
 				}
 
 				if(prevLoc != null) {
