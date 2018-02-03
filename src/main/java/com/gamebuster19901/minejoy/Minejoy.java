@@ -47,6 +47,12 @@ public class Minejoy {
 		
 		GameSettings settings = Minecraft.getMinecraft().gameSettings;
 		
+		/*
+		 * 
+		 * ControllerButtonBinding only seems to work on mouse buttons, unsure why...
+		 * 
+		 */
+		
 		settings.keyBindUseItem = new ControllerButtonBinding(settings.keyBindUseItem, ControllerStateWrapper.Button.LT.getIndex());
 		settings.keyBindAttack = new ControllerButtonBinding(settings.keyBindAttack, ControllerStateWrapper.Button.RT.getIndex());
 		
