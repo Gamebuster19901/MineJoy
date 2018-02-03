@@ -405,7 +405,7 @@ public class ControllerStateWrapper {
 				case LT:
 					return controllerState.leftTrigger > 0.5;
 				case RT:
-					return controllerState.leftTrigger > 0.5;
+					return controllerState.rightTrigger > 0.5;
 				default:
 					throw new AssertionError();
 			}
