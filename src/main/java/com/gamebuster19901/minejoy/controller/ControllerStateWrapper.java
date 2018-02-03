@@ -312,7 +312,7 @@ public class ControllerStateWrapper {
 		rb = state.rb;
 		rbJustPressed = state.rbJustPressed;
 		start = state.start;
-		startJustPressed = state.rbJustPressed;
+		startJustPressed = state.startJustPressed;
 		back = state.back;
 		backJustPressed = state.backJustPressed;
 		guide = state.guide;
