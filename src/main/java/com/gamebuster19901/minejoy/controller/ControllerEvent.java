@@ -19,7 +19,7 @@ public abstract class ControllerEvent extends Event{
 	
 	public ControllerEvent(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
 		this.index = index;
-		this.state = Layout.getLayout().getWrapper(state);
+		this.state = state;
 		this.unsafe = unsafe;
 	}
 	
@@ -35,17 +35,8 @@ public abstract class ControllerEvent extends Event{
 		return state;
 	}
 	
-	/**
-	 * 
-	 * @deprecated INTERNAL USE ONLY
-	 */
-	@Deprecated
-	public void setControllerState(ControllerStateWrapper newState) {
-		if(newState != null) {
-			state = newState;
-			return;
-		}
-		throw new NullPointerException();
+	public ControllerStateWrapper getModifiedControllerState() {
+		return Layout.getLayout().getWrapper(state);
 	}
 	
 	/**
