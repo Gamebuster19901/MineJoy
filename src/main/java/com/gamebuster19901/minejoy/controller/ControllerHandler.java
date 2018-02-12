@@ -20,44 +20,58 @@ public enum ControllerHandler {
 	
 	private final Thread CONTROLLER_THREAD = new Thread() {
 		public void run() {
-			while(Minejoy.isEnabled()) {
-				if(controllerManager.getNumControllers() > 0) {
-					Thread.currentThread().setName("Minejoy Controller Thread");
-					try {
-						Thread.sleep(1);
-						if (Thread.interrupted()) {
-						      throw new InterruptedException();
+			Thread.currentThread().setName("Minejoy Controller Thread");
+			try {
+				while(Minejoy.isEnabled()) {
+					if(controllerManager.getNumControllers() > 0) {
+						try {
+							Thread.sleep(1);
+							if (Thread.interrupted()) {
+							      throw new InterruptedException();
+							}
+						} catch (InterruptedException e) {
+							Minejoy.setAvailibility(false);
+							break;
 						}
-					} catch (InterruptedException e) {
-						Minejoy.setAvailibility(false);
-						break;
+						ControllerStateWrapper state = getActiveControllerState();
+						
+						MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Pre(activeController, state, getActiveControllerIndex()));
+						
+						state.leftStickJustClicked = !lastNoGLState.leftStickClick && state.leftStickClick;
+						state.rightStickJustClicked = !lastNoGLState.rightStickClick &&  state.rightStickClick;
+						state.aJustPressed = !lastNoGLState.a && state.a;
+						state.bJustPressed = !lastNoGLState.b && state.b;
+						state.xJustPressed = !lastNoGLState.x && state.x;
+						state.yJustPressed = !lastNoGLState.y && state.y;
+						state.lbJustPressed = !lastNoGLState.lb && state.lb;
+						state.rbJustPressed = !lastNoGLState.rb && state.rb;
+						state.startJustPressed = !lastNoGLState.start && state.start;
+						state.backJustPressed = !lastNoGLState.back && state.back;
+						state.guideJustPressed = !lastNoGLState.guide && state.guide;
+						state.dpadUpJustPressed = !lastNoGLState.dpadUp && state.dpadUp;
+						state.dpadDownJustPressed = !lastNoGLState.dpadDown && state.dpadDown;
+						state.dpadLeftJustPressed = !lastNoGLState.dpadLeft && state.dpadLeft;
+						state.dpadRightJustPressed = !lastNoGLState.dpadRight && state.dpadRight;
+						
+						state.leftTriggerJustReachedThreshold = lastNoGLState.leftTrigger <= 0.5 && state.leftTrigger > 0.5;
+						state.leftTriggerJustStoppedInputting = lastNoGLState.leftTrigger > 0.5 && state.leftTrigger <= 0.5;
+						state.rightTriggerJustReachedThreshold = lastNoGLState.rightTrigger <= 0.5 && state.rightTrigger > 0.5;
+						state.rightTriggerJustStoppedInputting = lastNoGLState.rightTrigger > 0.5 && state.rightTrigger <= 0.5;
+						
+						lastNoGLState = state;
+						
+						MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Post(activeController, state, getActiveControllerIndex()));
 					}
-					ControllerStateWrapper state = getActiveControllerState();
-					
-					MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Pre(activeController, state, getActiveControllerIndex()));
-					
-					state.leftStickJustClicked = !lastNoGLState.leftStickClick && state.leftStickClick;
-					state.rightStickJustClicked = !lastNoGLState.rightStickClick &&  state.rightStickClick;
-					state.aJustPressed = !lastNoGLState.a && state.a;
-					state.bJustPressed = !lastNoGLState.b && state.b;
-					state.xJustPressed = !lastNoGLState.x && state.x;
-					state.yJustPressed = !lastNoGLState.y && state.y;
-					state.lbJustPressed = !lastNoGLState.lb && state.lb;
-					state.rbJustPressed = !lastNoGLState.rb && state.rb;
-					state.startJustPressed = !lastNoGLState.start && state.start;
-					state.backJustPressed = !lastNoGLState.back && state.back;
-					state.guideJustPressed = !lastNoGLState.guide && state.guide;
-					state.dpadUpJustPressed = !lastNoGLState.dpadUp && state.dpadUp;
-					state.dpadDownJustPressed = !lastNoGLState.dpadDown && state.dpadDown;
-					state.dpadLeftJustPressed = !lastNoGLState.dpadLeft && state.dpadLeft;
-					state.dpadRightJustPressed = !lastNoGLState.dpadRight && state.dpadRight;
-					
-					state.leftTriggerJustReachedThreshold = lastNoGLState.leftTrigger <= 0.5 && state.leftTrigger > 0.5;
-					state.rightTriggerJustReachedThreshold = lastNoGLState.rightTrigger <= 0.5 && state.rightTrigger > 0.5;
-					
-					lastNoGLState = state;
-					
-					MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Post(activeController, state, getActiveControllerIndex()));
+				}
+			}
+			catch(Exception e) {
+				RuntimeException ex = new RuntimeException(e);
+				if(Minejoy.isEnabled()) {
+					throw ex;
+				}
+				else {
+					ex = new RuntimeException("Minejoy had an exception while processing inputs while shutting down, we can usually ignore this, but we will print the stacktrace just in case", e);
+					e.printStackTrace();
 				}
 			}
 		}
@@ -87,7 +101,9 @@ public enum ControllerHandler {
 			state.dpadRightJustPressed = !lastGLState.dpadRight && state.dpadRight;
 			
 			state.leftTriggerJustReachedThreshold = lastGLState.leftTrigger <= 0.5 && state.leftTrigger > 0.5;
+			state.leftTriggerJustStoppedInputting = lastGLState.leftTrigger > 0.5 && state.leftTrigger <= 0.5;
 			state.rightTriggerJustReachedThreshold = lastGLState.rightTrigger <= 0.5 && state.rightTrigger > 0.5;
+			state.rightTriggerJustStoppedInputting = lastGLState.rightTrigger > 0.5 && state.rightTrigger <= 0.5;
 			
 			lastGLState = state;
 			
