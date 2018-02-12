@@ -91,6 +91,12 @@ public class ControllerStateWrapper {
      * Whether or not the left trigger has just reached it's threshold: I.E. Just pressed beyond 50%
      */
     public boolean leftTriggerJustReachedThreshold = false;
+    
+    /**
+     * Whether or not the left trigger has just stopped inputting: I.E. Just released below 50%
+     */
+    
+    public boolean leftTriggerJustStoppedInputting = false;
 
     /**
      * The position of the right trigger between 0 and 1
@@ -102,6 +108,12 @@ public class ControllerStateWrapper {
      */
     
     public boolean rightTriggerJustReachedThreshold = false;
+    
+    /**
+     * Whether or not the right trigger has just stopped inputting: I.E. Just released below 50%
+     */
+    
+    public boolean rightTriggerJustStoppedInputting = false;
 
     /**
      * Whether or not the left stick was just is clicked in
@@ -296,8 +308,10 @@ public class ControllerStateWrapper {
 		
 		leftTrigger = state.leftTrigger;
 		leftTriggerJustReachedThreshold = state.leftTriggerJustReachedThreshold;
+		leftTriggerJustStoppedInputting = state.leftTriggerJustStoppedInputting;
 		rightTrigger = state.rightTrigger;
 		rightTriggerJustReachedThreshold = state.rightTriggerJustReachedThreshold;
+		rightTriggerJustStoppedInputting = state.rightTriggerJustStoppedInputting;
 		
 		a = state.a;
 		aJustPressed = state.aJustPressed; //
