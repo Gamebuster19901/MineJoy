@@ -25,9 +25,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class PlayerControllerMPMinejoy extends PlayerControllerMP{
@@ -77,7 +74,7 @@ public class PlayerControllerMPMinejoy extends PlayerControllerMP{
 	/**
 	 * Overridden to allow  Minejoy to prevent sending packets to the server when it cancels right click events
 	 * 
-	 * If Minejoy is not calling this method, it uses vanilla implementation. See
+	 * If Minejoy is not calling this method, it uses vanilla implementation.
 	 */
 	
 	@Override
@@ -206,15 +203,7 @@ public class PlayerControllerMPMinejoy extends PlayerControllerMP{
 		}
 	}
 	
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onPlayerLoad(EntityJoinWorldEvent e) {
-		if(e.getEntity() == Minecraft.getMinecraft().player) {
-			EntityPlayerSP player = (EntityPlayerSP)e.getEntity();
-			Minecraft.getMinecraft().playerController = getNewInstance();
-		}
-	}
-	
-	private PlayerControllerMPMinejoy getNewInstance() {
+	public static PlayerControllerMPMinejoy getNewInstance() {
 		return new PlayerControllerMPMinejoy(Minecraft.getMinecraft(), Minecraft.getMinecraft().getConnection());
 	}
 

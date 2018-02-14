@@ -7,12 +7,16 @@ import java.util.List;
 
 import org.lwjgl.input.Mouse;
 
+import com.gamebuster19901.minejoy.gui.GuiPossibleModIncompatability;
+
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,10 +24,12 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -35,18 +41,14 @@ public enum ControllerMouse{
 	INSTANCE;
 	
 	private static final Minecraft mc = Minecraft.getMinecraft();
-	public static final Field PLACED_BLOCK_FIELD = ReflectionHelper.findField(BlockEvent.PlaceEvent.class, "placedBlock");
-	public static final Field MOVEMENT_FIELD = ReflectionHelper.findField(EntityPlayerSP.class, "movementInput", "field_71158_b");
-	public static final Field BUTTON_FIELD = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
+	private static final Field BUTTON_FIELD = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
 	
-	public static final Method SEND_BLOCK_CLICK_TO_CONTROLLER_METHOD = ReflectionHelper.findMethod(Minecraft.class, "sendClickBlockToController", "func_147115_a", boolean.class);
-	public static final Method CLICK_MOUSE_METHOD = ReflectionHelper.findMethod(Minecraft.class, "clickMouse", "func_147116_af");
-	public static final Method RIGHT_CLICK_MOUSE_METHOD = ReflectionHelper.findMethod(Minecraft.class, "rightClickMouse", "func_147121_ag");
-	public static final Method MOUSE_PRESS_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClicked", "func_73864_a", int.class, int.class, int.class);
-	public static final Method MOUSE_DRAG_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClickMove", "func_146273_a", int.class, int.class, int.class, long.class);
- 	public static final Method MOUSE_RELEASE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseReleased", "func_146286_b", int.class, int.class, int.class);
- 	public static final Method KEY_TYPE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "keyTyped", "func_73869_a", char.class, int.class);
- 	public static final Method SLOT_CLICKED_METHOD = ReflectionHelper.findMethod(GuiContainer.class, "handleMouseClick", "func_184098_a", Slot.class, int.class, int.class, ClickType.class);
+	private static final Method CLICK_MOUSE_METHOD = ReflectionHelper.findMethod(Minecraft.class, "clickMouse", "func_147116_af");
+	private static final Method MOUSE_PRESS_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClicked", "func_73864_a", int.class, int.class, int.class);
+	private static final Method MOUSE_DRAG_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClickMove", "func_146273_a", int.class, int.class, int.class, long.class);
+ 	private static final Method MOUSE_RELEASE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseReleased", "func_146286_b", int.class, int.class, int.class);
+ 	private static final Method KEY_TYPE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "keyTyped", "func_73869_a", char.class, int.class);
+ 	private static final Method SLOT_CLICKED_METHOD = ReflectionHelper.findMethod(GuiContainer.class, "handleMouseClick", "func_184098_a", Slot.class, int.class, int.class, ClickType.class);
  	
  	private float deltaX = 0;
  	private float deltaY = 0;
@@ -56,14 +58,13 @@ public enum ControllerMouse{
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
-		int mouseX = Mouse.getEventX();
-		int mouseY = Mouse.getEventY();
+		Mouse.getEventX();
+		Mouse.getEventY();
 		ControllerStateWrapper state = e.getModifiedControllerState();
 		
 		
 		GuiScreen gui = mc.currentScreen;
 		EntityPlayer player = mc.player;
-		
 		
 		if(state.leftStickMagnitude > 0.3) {
 			
@@ -101,42 +102,25 @@ public enum ControllerMouse{
 				}
 				player.rotationYaw = player.rotationYaw + state.rightStickX * state.rightStickMagnitude * 0.25f;
 			}
-			
-			KeyBinding bind = mc.gameSettings.keyBindInventory;
-			if(state.xJustPressed) {
-				bind.setKeyBindState(bind.getKeyCode(), true);
-			}
-			else {
-				bind.setKeyBindState(bind.getKeyCode(), false);
-			}
 		}
  	}
  	
- 	private float prevRightTrigger = 0f;
- 	
  	@SubscribeEvent
 	public void onControllerEvent(ControllerEvent.Post e) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		int mouseX = Mouse.getEventX();
-		int mouseY = Mouse.getEventY();
+		Mouse.getEventX();
+		Mouse.getEventY();
 		ControllerStateWrapper state = e.getModifiedControllerState();
 		
 		GuiScreen gui = mc.currentScreen;
 		EntityPlayer player = mc.player;
-		RayTraceResult rayTrace = null;
-		
 		if(gui != null) {
 			
 			List<GuiButton> buttons = (List<GuiButton>)BUTTON_FIELD.get(gui);
-			GuiButton mousedButton = null;
-			
 			for(GuiButton b : buttons) {
 				if(b.isMouseOver() && b.visible && b.enabled) {
-					mousedButton = b;
 					break;
 				}
 			}
-			
-			boolean hasItem = player != null ? !player.inventory.getItemStack().isEmpty() : false;
 
 			if(state.aJustPressed) {
 				MOUSE_PRESS_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 0);
@@ -184,6 +168,20 @@ public enum ControllerMouse{
 		else {
 			if(player != null && mc.world.isRemote) {
 				
+				if(GuiPossibleModIncompatability.compatibleControllers.contains(mc.playerController.getClass())){
+
+				}
+				else if(GuiPossibleModIncompatability.overwriteableControllers.contains(mc.playerController.getClass())) {
+					mc.playerController = PlayerControllerMPMinejoy.getNewInstance();
+				}
+				else if(GuiPossibleModIncompatability.knownIncompatabilities.contains(mc.playerController.getClass())) {
+
+				}
+				else {
+					mc.displayGuiScreen(new GuiPossibleModIncompatability(mc.playerController.getClass()));
+					mc.playerController = PlayerControllerMPMinejoy.getNewInstance();
+				}
+				
 				if(state.bJustPressed) {
 					player.dropItem(false);
 				}
@@ -210,7 +208,17 @@ public enum ControllerMouse{
 					}
 				}
 				
-				if((state.rightTrigger > 0.5 && prevRightTrigger <= 0.5)) {
+				if(!state.leftTriggerJustReachedThreshold && state.leftTrigger > 0.5) {
+					if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
+						BlockSnapshot blockSnapshot = new BlockSnapshot(player.world, mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit), mc.world.getBlockState(mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit)));
+						IBlockState placedAgainst = player.world.getBlockState(mc.objectMouseOver.getBlockPos());
+						if(MinecraftForge.EVENT_BUS.post(new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player, EnumHand.MAIN_HAND))){
+							mc.playerController.processRightClickBlock((EntityPlayerSP)player, (WorldClient)player.world, mc.objectMouseOver.getBlockPos(), mc.objectMouseOver.sideHit, mc.objectMouseOver.hitVec, EnumHand.MAIN_HAND);
+						}
+					}
+				}
+				
+				if(state.rightTriggerJustReachedThreshold) {
 					CLICK_MOUSE_METHOD.invoke(mc);
 				}
 				

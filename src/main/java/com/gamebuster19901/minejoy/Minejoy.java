@@ -5,7 +5,6 @@ import static com.gamebuster19901.minejoy.Minejoy.MODNAME;
 import static com.gamebuster19901.minejoy.Minejoy.VERSION;
 
 import java.awt.HeadlessException;
-
 import com.gamebuster19901.minejoy.binding.ControllerButtonBinding;
 import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
@@ -17,8 +16,10 @@ import com.gamebuster19901.minejoy.controller.layout.Default;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.gamebuster19901.minejoy.controller.layout.SouthPaw;
 import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
+import com.gamebuster19901.minejoy.gui.GuiPossibleModIncompatability;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -31,10 +32,15 @@ import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = MODID, name = MODNAME, version = VERSION, clientSideOnly = true)
 public class Minejoy {
+
+	
 	public static final String MODID = "minejoy";
 	public static final String MODNAME = "MineJoy";
 	public static final String VERSION = "0.0.0.0";
 	private static boolean enabled = true;
+	
+	@Mod.Instance()
+	public static Minejoy instance;
 	
 	private static Configuration CONFIG;
 	
@@ -44,7 +50,6 @@ public class Minejoy {
 			throw new HeadlessException("Remove MineJoy from the server, it is for clients only");
 		}
 		CONFIG = new Configuration(e.getSuggestedConfigurationFile());
-		
 		GameSettings settings = Minecraft.getMinecraft().gameSettings;
 		
 		/*
@@ -68,16 +73,19 @@ public class Minejoy {
 		MinecraftForge.EVENT_BUS.register(PlayerControllerMPMinejoy.REGISTRY_INSTANCE);
 		MinecraftForge.EVENT_BUS.register(MineJoyConfig.reflection.INSTANCE);
 		
+		//Main.main(new String[]{}); //debug
+		
 	}
 	
 	@EventHandler
 	public void init(FMLInitializationEvent e){
 
 	}
-	
+			
 	@EventHandler
-	public void postInit(FMLPostInitializationEvent e) {
-
+	public void postInit(FMLPostInitializationEvent e) throws IllegalArgumentException, IllegalAccessException {
+		GuiPossibleModIncompatability.overwriteableControllers.add(PlayerControllerMP.class); //Minejoy is designed to overwrite the vanilla controller
+		GuiPossibleModIncompatability.compatibleControllers.add(PlayerControllerMPMinejoy.class); //Minejoy is compatible with itself, no need to overwrite itself
 	}	
 	
 	public static Configuration getConfig() {
