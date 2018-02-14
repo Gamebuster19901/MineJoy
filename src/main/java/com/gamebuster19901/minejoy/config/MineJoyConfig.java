@@ -10,7 +10,6 @@ import com.gamebuster19901.minejoy.gui.GuiControllerOptions;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.client.GuiModList;
