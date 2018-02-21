@@ -55,6 +55,8 @@ public enum ControllerMouse{
  	
  	private ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
  	private BlockPos lastBlockPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
+ 	private BlockPos lastPlayerPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
+ 	private EnumFacing lastFace = EnumFacing.DOWN;
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
@@ -317,19 +319,36 @@ public enum ControllerMouse{
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onItemPlace(PlayerInteractEvent.RightClickBlock e) {
 		if(e.isCanceled()) {return;}
-		
+		BlockPos playerPos = e.getEntityPlayer().getPosition();
 		if(e.getWorld().isRemote) {
-			if(lastBlockPos.equals(e.getPos())){
-				e.setCanceled(true);
-			}
 			if(lastState.leftTriggerJustReachedThreshold) {
 				System.out.println(lastState.leftTriggerJustReachedThreshold);
-				e.setCanceled(false);
+				lastBlockPos = e.getPos().offset(e.getFace());
+				lastPlayerPos = playerPos;
+				System.out.println(1);
+			}
+			else if(!hasPlayerChangedPos(playerPos)) {
+				System.out.println(2);
+				if(lastBlockPos.getX() == e.getPos().getX() && lastBlockPos.getY() == e.getPos().getY() && lastBlockPos.getZ() == e.getPos().getZ()){
+					System.out.println(3);
+					e.setCanceled(true);
+				}
 			}
 			else {
+				if(e.getFace() != lastFace) {
+					e.setCanceled(true);
+				}
+			}
+			if(!e.isCanceled()) {
+				System.out.println(4);
 				lastBlockPos = e.getPos().offset(e.getFace());
-				System.out.println(lastBlockPos + " + " + e.getEntityPlayer().getPosition());
+				lastPlayerPos = playerPos;
+				lastFace = e.getFace();
 			}
 		}
+	}
+	
+	private boolean hasPlayerChangedPos(BlockPos currentPlayerPos) {
+		return !(lastPlayerPos.getX() == currentPlayerPos.getX() && lastPlayerPos.getY() == currentPlayerPos.getY() && lastPlayerPos.getZ() == currentPlayerPos.getZ());
 	}
 }
