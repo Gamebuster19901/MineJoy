@@ -58,14 +58,14 @@ public final class MovementInputFromOptionsMinejoy extends MovementInputFromOpti
 
 		}
 		
-		if(Math.abs(moveForwardController) > moveForward) {
+		if(Math.abs(moveForwardController) > Math.abs(moveForward)) {
 			moveForward = moveForwardController;
 		}
 		else if (!prevSneak && sneak) {
 			moveForward = moveForward * 0.3f;
 		}
 		
-		if(Math.abs(moveStrafeController) > moveStrafe) {
+		if(Math.abs(moveStrafeController) > Math.abs(moveStrafe)) {
 			moveStrafe = moveStrafeController;
 		}
 		else if (!prevSneak && sneak) {
