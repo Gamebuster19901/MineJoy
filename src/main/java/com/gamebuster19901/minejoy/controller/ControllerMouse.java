@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.lwjgl.input.Mouse;
 
+import com.gamebuster19901.minejoy.binding.ControllerButtonBinding;
 import com.gamebuster19901.minejoy.gui.GuiPossibleModIncompatability;
 
 import net.minecraft.block.state.IBlockState;
@@ -319,31 +320,33 @@ public enum ControllerMouse{
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onItemPlace(PlayerInteractEvent.RightClickBlock e) {
 		if(e.isCanceled()) {return;}
-		BlockPos playerPos = e.getEntityPlayer().getPosition();
-		if(e.getWorld().isRemote) {
-			if(lastState.leftTriggerJustReachedThreshold) {
-				System.out.println(lastState.leftTriggerJustReachedThreshold);
-				lastBlockPos = e.getPos().offset(e.getFace());
-				lastPlayerPos = playerPos;
-				System.out.println(1);
-			}
-			else if(!hasPlayerChangedPos(playerPos)) {
-				System.out.println(2);
-				if(lastBlockPos.getX() == e.getPos().getX() && lastBlockPos.getY() == e.getPos().getY() && lastBlockPos.getZ() == e.getPos().getZ()){
-					System.out.println(3);
-					e.setCanceled(true);
+		if(((ControllerButtonBinding)mc.gameSettings.keyBindUseItem).lastPressWasController()){
+			BlockPos playerPos = e.getEntityPlayer().getPosition();
+			if(e.getWorld().isRemote) {
+				if(lastState.leftTriggerJustReachedThreshold) {
+					System.out.println(lastState.leftTriggerJustReachedThreshold);
+					lastBlockPos = e.getPos().offset(e.getFace());
+					lastPlayerPos = playerPos;
+					System.out.println(1);
 				}
-			}
-			else {
-				if(e.getFace() != lastFace) {
-					e.setCanceled(true);
+				else if(!hasPlayerChangedPos(playerPos)) {
+					System.out.println(2);
+					if(lastBlockPos.getX() == e.getPos().getX() && lastBlockPos.getY() == e.getPos().getY() && lastBlockPos.getZ() == e.getPos().getZ()){
+						System.out.println(3);
+						e.setCanceled(true);
+					}
 				}
-			}
-			if(!e.isCanceled()) {
-				System.out.println(4);
-				lastBlockPos = e.getPos().offset(e.getFace());
-				lastPlayerPos = playerPos;
-				lastFace = e.getFace();
+				else {
+					if(e.getFace() != lastFace) {
+						e.setCanceled(true);
+					}
+				}
+				if(!e.isCanceled()) {
+					System.out.println(4);
+					lastBlockPos = e.getPos().offset(e.getFace());
+					lastPlayerPos = playerPos;
+					lastFace = e.getFace();
+				}
 			}
 		}
 	}
