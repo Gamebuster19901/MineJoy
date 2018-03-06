@@ -155,10 +155,7 @@ public enum ControllerHandler {
 	}
 	
 	public synchronized ControllerStateWrapper getActiveControllerState() {
-		if(controllerManager.getState(activeController).isConnected) {
-			return new ControllerStateWrapper(controllerManager.getState(activeController));
-		}
-		return ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+		return new ControllerStateWrapper(controllerManager.getState(activeController));
 	}
 	
 	public synchronized Layout.LayoutWrapper getModifiedActiveContorllerState() {
