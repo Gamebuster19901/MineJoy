@@ -68,6 +68,8 @@ public abstract class Layout{
 			
 		}
 		
+		public abstract String getName();
+		
 	}
 	
 	public final String toString() {

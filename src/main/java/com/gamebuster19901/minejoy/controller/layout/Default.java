@@ -2,6 +2,8 @@ package com.gamebuster19901.minejoy.controller.layout;
 
 import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
 
+import net.minecraft.client.resources.I18n;
+
 public final class Default extends Layout {
 	public Default() {
 		
@@ -21,6 +23,11 @@ public final class Default extends Layout {
 		@Override
 		public LayoutWrapper interpret() {
 			return super.interpret(); //this is default, we don't need to change anything
+		}
+
+		@Override
+		public String getName() {
+			return I18n.format("minejoy.layout.default");
 		}
 		
 	}

@@ -2,6 +2,8 @@ package com.gamebuster19901.minejoy.controller.layout;
 
 import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
 
+import net.minecraft.client.resources.I18n;
+
 public class SouthPaw extends Layout{
 
 	@Override
@@ -42,6 +44,11 @@ public class SouthPaw extends Layout{
 			
 			return this;
 			
+		}
+
+		@Override
+		public String getName() {
+			return I18n.format("minejoy.layout.southpaw");
 		}
 		
 	}
