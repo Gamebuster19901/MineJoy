@@ -1,5 +1,6 @@
 package com.gamebuster19901.minejoy.controller;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -45,6 +46,8 @@ public enum ControllerMouse{
 	private static final Minecraft mc = Minecraft.getMinecraft();
 	private static final Field BUTTON_FIELD = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
 	private static final Field MOUSE_BUTTONS = ReflectionHelper.findField(Mouse.class, "buttons");
+	private static final Field EVENT_BUTTON = ReflectionHelper.findField(Mouse.class, "eventButton");
+	private static final Field MOUSE_BUTTON_STATE = ReflectionHelper.findField(Mouse.class, "eventState");
 	
 	private static final Method CLICK_MOUSE_METHOD = ReflectionHelper.findMethod(Minecraft.class, "clickMouse", "func_147116_af");
 	private static final Method MOUSE_PRESS_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClicked", "func_73864_a", int.class, int.class, int.class);
@@ -111,8 +114,9 @@ public enum ControllerMouse{
  	}
  	
  	@SubscribeEvent
-	public void onControllerEvent(ControllerEvent.Post e) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	public void onControllerEvent(ControllerEvent.Post e) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, IOException {
  		ByteBuffer mouseButtons = (ByteBuffer) MOUSE_BUTTONS.get(null);
+ 		
 		ControllerStateWrapper state = e.getModifiedControllerState();
 		
 		GuiScreen gui = mc.currentScreen;
@@ -128,7 +132,9 @@ public enum ControllerMouse{
 
 			if(state.aJustPressed) {
 				mouseButtons.put(0, (byte)0b00000001);
-				MOUSE_PRESS_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 0);
+				MOUSE_BUTTON_STATE.setBoolean(null, true);
+				EVENT_BUTTON.setInt(null, 0);
+				gui.handleMouseInput();
 				System.out.println("pressed a");
 			}
 			else if(!state.a && lastState.a) {
@@ -137,6 +143,10 @@ public enum ControllerMouse{
 			}
 			else if (state.a && lastState.a) {
 				mouseButtons.put(0, (byte)0b00000001);
+				boolean mouseState = !(gui instanceof GuiContainer); //see Issue #8
+				MOUSE_BUTTON_STATE.setBoolean(null, mouseState);
+				EVENT_BUTTON.setInt(null, -1);
+				gui.handleMouseInput();
 				MOUSE_DRAG_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 0, 0l);
 				System.out.println("drag a");
 			}
@@ -169,6 +179,7 @@ public enum ControllerMouse{
 			if(state.bJustPressed || state.backJustPressed || state.startJustPressed || state.guideJustPressed) {
 				KEY_TYPE_METHOD.invoke(gui, (char)0x1B, 1);
 			}
+			
 		}
 		else {
 			if(player != null && mc.world.isRemote) {
