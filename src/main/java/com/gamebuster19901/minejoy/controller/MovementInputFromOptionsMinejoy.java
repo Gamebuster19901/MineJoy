@@ -71,8 +71,10 @@ public final class MovementInputFromOptionsMinejoy extends MovementInputFromOpti
 		else if (!prevSneak && sneak) {
 			moveStrafe = moveStrafe * 0.3f;
 		}
-		
-		jump = jump ? jump : state.a;
+		if(!state.a) {
+			ControllerMouse.wasGUIJustOpen = false;
+		}
+		jump = jump ? jump : state.a && !ControllerMouse.wasGUIJustOpen;
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)

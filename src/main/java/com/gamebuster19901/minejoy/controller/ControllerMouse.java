@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
@@ -16,7 +17,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiScreenResourcePacks;
+import net.minecraft.client.gui.GuiVideoSettings;
+import net.minecraft.client.gui.GuiWorldSelection;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -63,6 +68,8 @@ public enum ControllerMouse{
  	private BlockPos lastBlockPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
  	private BlockPos lastPlayerPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
  	private EnumFacing lastFace = EnumFacing.DOWN;
+ 	
+ 	static boolean wasGUIJustOpen = true;
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
@@ -122,7 +129,7 @@ public enum ControllerMouse{
 		GuiScreen gui = mc.currentScreen;
 		EntityPlayer player = mc.player;
 		if(gui != null) {
-			
+			wasGUIJustOpen = true;
 			List<GuiButton> buttons = (List<GuiButton>)BUTTON_FIELD.get(gui);
 			for(GuiButton b : buttons) {
 				if(b.isMouseOver() && b.visible && b.enabled) {
@@ -144,7 +151,7 @@ public enum ControllerMouse{
 			else if (state.a && lastState.a) {
 				mouseButtons.put(0, (byte)0b00000001);
 				boolean mouseState = !(gui instanceof GuiContainer); //see Issue #8
-				MOUSE_BUTTON_STATE.setBoolean(null, mouseState);
+				MOUSE_BUTTON_STATE.setBoolean(null, false);
 				EVENT_BUTTON.setInt(null, -1);
 				gui.handleMouseInput();
 				MOUSE_DRAG_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 0, 0l);
@@ -360,6 +367,23 @@ public enum ControllerMouse{
 					lastPlayerPos = playerPos;
 					lastFace = e.getFace();
 				}
+			}
+		}
+	}
+	
+	private static final List<Class<? extends GuiScreen>> BuggedGuis = 
+		Arrays.asList(
+			GuiWorldSelection.class,
+			GuiMultiplayer.class,
+			GuiScreenResourcePacks.class,
+			GuiVideoSettings.class
+	);
+	
+	@SubscribeEvent
+	public void GuiClickFix(GuiScreenEvent.MouseInputEvent e) {
+		for(Class<? extends GuiScreen> buggedGuiClass : BuggedGuis) {
+			if(e.getGui().getClass().isAssignableFrom(buggedGuiClass) && Mouse.getEventButton() != 0) {
+				e.setCanceled(true);
 			}
 		}
 	}
