@@ -384,6 +384,7 @@ public enum ControllerMouse{
 		for(Class<? extends GuiScreen> buggedGuiClass : BuggedGuis) {
 			if(e.getGui().getClass().isAssignableFrom(buggedGuiClass) && Mouse.getEventButton() != 0) {
 				e.setCanceled(true);
+				return;
 			}
 		}
 	}
