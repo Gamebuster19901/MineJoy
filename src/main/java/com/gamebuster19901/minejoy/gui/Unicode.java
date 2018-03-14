@@ -50,8 +50,12 @@ public class Unicode {
 	public static final char RT = 0xE02F;
 	public static final char RSTICK_XB = 0xE030;
 	
-	public static final byte PS = (byte) 0xE000;
-	public static final byte XB = (byte) 0xE020;
+	public static final short PS = (byte) 0xE000;
+	public static final short XB = (byte) 0xE020;
+	
+	private Unicode() {
+		throw new AssertionError();
+	}
 	
 	public static final char getButton(byte console, int button) {
 		if(console != PS && console != XB) {
