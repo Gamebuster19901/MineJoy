@@ -50,8 +50,8 @@ public class Unicode {
 	public static final char RT = 0xE02F;
 	public static final char RSTICK_XB = 0xE030;
 	
-	public static final short PS = (byte) 0xE000;
-	public static final short XB = (byte) 0xE020;
+	public static final short PS = (short) 0xE000;
+	public static final short XB = (short) 0xE020;
 	
 	private Unicode() {
 		throw new AssertionError();
