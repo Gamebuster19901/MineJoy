@@ -65,6 +65,6 @@ public class Unicode {
 				return (char)(console.getCodepoint() + button);
 			}
 		}
-		throw new UnknownConsoleException(console);
+		throw new UnknownConsoleException(console.toString());
 	}
 }
