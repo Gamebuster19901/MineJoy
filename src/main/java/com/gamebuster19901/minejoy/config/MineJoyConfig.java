@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.gamebuster19901.minejoy.gui.Console;
 import com.gamebuster19901.minejoy.gui.GuiControllerOptions;
 
 import net.minecraft.client.Minecraft;
@@ -27,6 +28,8 @@ public class MineJoyConfig{
 		
 		public MineJoyConfig INSTANCE = new MineJoyConfig();
 	}
+	
+	public static String controllerType = Console.XB.toString();
 	
 	public static int defaultController = 0;
 	

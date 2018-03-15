@@ -16,6 +16,7 @@ import com.gamebuster19901.minejoy.controller.PlayerControllerMPMinejoy;
 import com.gamebuster19901.minejoy.controller.layout.Default;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.gamebuster19901.minejoy.controller.layout.SouthPaw;
+import com.gamebuster19901.minejoy.gui.Console;
 import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
 import com.gamebuster19901.minejoy.gui.GuiPossibleModIncompatability;
 
@@ -63,6 +64,7 @@ public class Minejoy {
 		settings.keyBindAttack = new ControllerButtonBinding(settings.keyBindAttack, ControllerStateWrapper.Button.RT.getIndex());
 		
 		ControllerHandler.INSTANCE.init();
+		Console.init();
 		
 		Layout.register(new Default());
 		Layout.register(new SouthPaw());

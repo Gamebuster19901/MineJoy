@@ -16,7 +16,7 @@ public class ControllerStateWrapper {
 		}
 	}
 	
-	private ControllerState jamePadState = JAMEPAD_DISCONNECTED_CONTROLLER;
+	protected ControllerState jamePadState = JAMEPAD_DISCONNECTED_CONTROLLER;
 	
 	 /**
      * Whether or not the controller is currently connected.
@@ -339,6 +339,10 @@ public class ControllerStateWrapper {
 		dpadLeftJustPressed = state.dpadLeftJustPressed;
 		dpadRight = state.dpadRight;
 		dpadRightJustPressed = state.dpadRightJustPressed;
+	}
+	
+	public ControllerState getJamepadState() {
+		return jamePadState;
 	}
 	
 	private ControllerStateWrapper() {}

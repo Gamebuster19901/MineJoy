@@ -1,5 +1,7 @@
 package com.gamebuster19901.minejoy.gui;
 
+import com.gamebuster19901.minejoy.exception.UnknownConsoleException;
+
 public class Unicode {
 	
 	/*
@@ -50,20 +52,19 @@ public class Unicode {
 	public static final char RT = 0xE02F;
 	public static final char RSTICK_XB = 0xE030;
 	
-	public static final short PS = (short) 0xE000;
-	public static final short XB = (short) 0xE020;
-	
 	private Unicode() {
 		throw new AssertionError();
 	}
 	
-	public static final char getButton(byte console, int button) {
-		if(console != PS && console != XB) {
-			throw new IndexOutOfBoundsException("Console must be either Playstation (" + PS + ") or Xbox (" + XB + ")");
+	public static final char getButton(Console console, short button) {
+		for(Console c : Console.getConsoles()) {
+			if(console.equals(console)) {
+				if(button < 0 || button > c.getButtonCount()) {
+					throw new IndexOutOfBoundsException("Button must be between 0 and " + c.getButtonCount() + " (inclusive)");
+				}
+				return (char)(console.getCodepoint() + button);
+			}
 		}
-		if(button < 0 || button > 16) {
-			throw new IndexOutOfBoundsException("Button must be between 0 and 16 (inclusive)");
-		}
-		return (char) ((char)console + (char)button);
+		throw new UnknownConsoleException(console.toString());
 	}
 }
