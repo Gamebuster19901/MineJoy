@@ -16,7 +16,6 @@ import com.gamebuster19901.minejoy.controller.PlayerControllerMPMinejoy;
 import com.gamebuster19901.minejoy.controller.layout.Default;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.gamebuster19901.minejoy.controller.layout.SouthPaw;
-import com.gamebuster19901.minejoy.gui.Console;
 import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
 import com.gamebuster19901.minejoy.gui.GuiPossibleModIncompatability;
 
@@ -51,7 +50,6 @@ public class Minejoy {
 		if(e.getSide() == Side.SERVER) {
 			throw new HeadlessException("Remove MineJoy from the server, it is for clients only");
 		}
-		CONFIG = new Configuration(e.getSuggestedConfigurationFile());
 		GameSettings settings = Minecraft.getMinecraft().gameSettings;
 		
 		/*
@@ -63,8 +61,8 @@ public class Minejoy {
 		settings.keyBindUseItem = new ControllerButtonBinding(settings.keyBindUseItem, ControllerStateWrapper.Button.LT.getIndex());
 		settings.keyBindAttack = new ControllerButtonBinding(settings.keyBindAttack, ControllerStateWrapper.Button.RT.getIndex());
 		
+		CONFIG = new Configuration(e.getSuggestedConfigurationFile());
 		ControllerHandler.INSTANCE.init();
-		Console.init();
 		
 		Layout.register(new Default());
 		Layout.register(new SouthPaw());
