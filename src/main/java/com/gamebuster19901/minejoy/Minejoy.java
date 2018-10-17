@@ -9,13 +9,13 @@ import java.awt.HeadlessException;
 import com.gamebuster19901.minejoy.binding.ControllerButtonBinding;
 import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
-import com.gamebuster19901.minejoy.controller.ControllerMouse;
 import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
 import com.gamebuster19901.minejoy.controller.MovementInputFromOptionsMinejoy;
 import com.gamebuster19901.minejoy.controller.PlayerControllerMPMinejoy;
 import com.gamebuster19901.minejoy.controller.layout.Default;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.gamebuster19901.minejoy.controller.layout.SouthPaw;
+import com.gamebuster19901.minejoy.controller.ControllerMouse;
 import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
 import com.gamebuster19901.minejoy.gui.GuiPossibleModIncompatability;
 
@@ -34,7 +34,6 @@ import net.minecraftforge.fml.relauncher.Side;
 @Mod(modid = MODID, name = MODNAME, version = VERSION, clientSideOnly = true)
 public class Minejoy {
 
-	
 	public static final String MODID = "minejoy";
 	public static final String MODNAME = "MineJoy";
 	public static final String VERSION = "0.8.0.0";
@@ -50,6 +49,7 @@ public class Minejoy {
 		if(e.getSide() == Side.SERVER) {
 			throw new HeadlessException("Remove MineJoy from the server, it is for clients only");
 		}
+		
 		GameSettings settings = Minecraft.getMinecraft().gameSettings;
 		
 		/*
@@ -57,7 +57,7 @@ public class Minejoy {
 		 * ControllerButtonBinding only seems to work on mouse buttons, unsure why...
 		 * 
 		 */
-		
+
 		settings.keyBindUseItem = new ControllerButtonBinding(settings.keyBindUseItem, ControllerStateWrapper.Button.LT.getIndex());
 		settings.keyBindAttack = new ControllerButtonBinding(settings.keyBindAttack, ControllerStateWrapper.Button.RT.getIndex());
 		
@@ -73,9 +73,6 @@ public class Minejoy {
 		MinecraftForge.EVENT_BUS.register(MovementInputFromOptionsMinejoy.getInstance());
 		MinecraftForge.EVENT_BUS.register(PlayerControllerMPMinejoy.REGISTRY_INSTANCE);
 		MinecraftForge.EVENT_BUS.register(MineJoyConfig.reflection.INSTANCE);
-		
-		
-		//Main.main(new String[]{}); //debug
 		
 	}
 	
@@ -101,4 +98,5 @@ public class Minejoy {
 	public static boolean isEnabled() {
 		return enabled;
 	}
+	
 }
