@@ -25,7 +25,7 @@ public enum ControllerHandler {
 			Thread.currentThread().setName("Minejoy Controller Thread");
 			try {
 				while(Minejoy.isEnabled()) {
-					if(controllerManager.getNumControllers() > 0 && Display.isActive()) {
+					if(canSendControllerEvents()) {
 						try {
 							Thread.sleep(1);
 							if (Thread.interrupted()) {
@@ -81,7 +81,7 @@ public enum ControllerHandler {
 	
 	@SubscribeEvent
 	public final void everyTick(ClientTickEvent e) {
-		if(controllerManager.getNumControllers() > 0 && Minejoy.isEnabled() && Display.isActive()) {
+		if(canSendControllerEvents()) {
 			ControllerStateWrapper state = getActiveControllerState();
 			
 			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
@@ -272,6 +272,10 @@ public enum ControllerHandler {
 			}
 		}.start();
 
+	}
+	
+	public boolean canSendControllerEvents() {
+		return controllerManager.getNumControllers() > 0 && Display.isCreated() && Display.isActive();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {
