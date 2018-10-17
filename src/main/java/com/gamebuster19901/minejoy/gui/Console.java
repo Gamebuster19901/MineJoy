@@ -2,6 +2,8 @@ package com.gamebuster19901.minejoy.gui;
 
 import java.util.ArrayList;
 
+import com.gamebuster19901.minejoy.config.MineJoyConfig;
+import com.gamebuster19901.minejoy.exception.DuplicateElementException;
 import com.gamebuster19901.minejoy.exception.UnknownConsoleException;
 
 import net.minecraft.util.ResourceLocation;
@@ -11,8 +13,11 @@ import net.minecraftforge.fml.common.LoaderState;
 public final class Console {
 	private static final ArrayList<Console> registeredConsoles = new ArrayList<Console>();
 	
-	public static final Console XB = new Console("Xbox", (short) 0xE000, (short)16, new ResourceLocation("minejoy:textures/gui/controller/xb"));
-	public static final Console PS = new Console("Playstation", (short) 0xE020, (short)16, new ResourceLocation("minejoy:textures/gui/controller/ps"));
+	private static final Console[] DEFAULT_CONSOLES = new Console[] {
+		new Console("None", (short) 0x0000, (short)0, new ResourceLocation("minejoy:textures/gui/controller/nc")),
+		new Console("Xbox", (short) 0xE000, (short)16, new ResourceLocation("minejoy:textures/gui/controller/xb")),
+		new Console("Playstation", (short) 0xE020, (short)16, new ResourceLocation("minejoy:textures/gui/controller/ps"))
+	};
 	
 	private final String name;
 	private final short codepoint;
@@ -55,11 +60,10 @@ public final class Console {
 	public static void init() {
 		LoaderState state = Loader.instance().getLoaderState();
 		switch(state) {
-			case PREINITIALIZATION:
-			case INITIALIZATION:
-			case POSTINITIALIZATION:
-				register(XB);
-				register(PS);
+			case CONSTRUCTING:
+				for(Console c : DEFAULT_CONSOLES) {
+					register(c);
+				}
 				break;
 		default:
 			throw new IllegalStateException("Cannot init during loader state " + state);
@@ -68,30 +72,43 @@ public final class Console {
 	
 	public static void register(Console console) {
 		LoaderState state = Loader.instance().getLoaderState();
+		out_of_switch:
 		switch(state) {
-			case PREINITIALIZATION:
-			case INITIALIZATION:
-			case POSTINITIALIZATION:
-				if(registeredConsoles.contains(console)) {
-					throw new IllegalStateException(console + " already registered");
+			case CONSTRUCTING:
+				try {
+					Class c = Class.forName(Thread.currentThread().getStackTrace()[3].getClassName());
+					System.out.println(c);
+					if(Class.forName(Thread.currentThread().getStackTrace()[3].getClassName()) != MineJoyConfig.class) {
+						break out_of_switch;
+					}
+				} catch (ClassNotFoundException e1) {
+					throw new UnknownConsoleException(console.name, e1);
 				}
-				registeredConsoles.add(console);
-				break;
+			case POSTINITIALIZATION:
+				try {
+					getConsole(console.codepoint, false);
+					throw new DuplicateElementException(console);
+				}
+				catch(UnknownConsoleException e) {
+					registeredConsoles.add(console);
+				}
+				return;
 		default:
-			throw new IllegalStateException("Cannot register during loader state " + state);
+			
 		}
+		throw new IllegalStateException("Cannot register during loader state " + state);
 	}
 	
-	public Console getConsole(String name) {
+	public static Console getConsole(String name) throws UnknownConsoleException{
 		for(Console c : registeredConsoles) {
-			if(c.toString() == name) {
+			if(c.toString().equals(name)) {
 				return c;
 			}
 		}
 		throw new UnknownConsoleException(name);
 	}
 	
-	public Console getConsole(short codepoint, boolean strict) {
+	public static Console getConsole(short codepoint, boolean strict) {
 		for(Console c : registeredConsoles) {
 			if(c.getCodepoint() == codepoint) {
 				return c;

@@ -21,6 +21,10 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 @Config(modid = MODID)
 public class MineJoyConfig{
 	
+	static {
+		Console.init();
+	}
+	
 	public static interface reflection{
 		Field configButton = ReflectionHelper.findField(GuiModList.class, "configModButton");
 		Field selectedMod = ReflectionHelper.findField(GuiModList.class, "selectedMod");
@@ -29,7 +33,7 @@ public class MineJoyConfig{
 		public MineJoyConfig INSTANCE = new MineJoyConfig();
 	}
 	
-	public static String controllerType = Console.XB.toString();
+	public static String controllerType = Console.getConsole("Xbox").toString();
 	
 	public static int defaultController = 0;
 	

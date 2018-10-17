@@ -14,4 +14,9 @@ public class UnknownConsoleException extends NoSuchElementException{
 	public UnknownConsoleException(String message) {
 		super(message);
 	}
+
+	public UnknownConsoleException(String console, Throwable cause) {
+		this(console);
+		this.initCause(cause);
+	}
 }
