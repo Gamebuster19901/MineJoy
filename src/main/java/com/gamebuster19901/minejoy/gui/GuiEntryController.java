@@ -1,8 +1,10 @@
 package com.gamebuster19901.minejoy.gui;
 
+import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerEvent;
 import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiListExtended.IGuiListEntry;
 import net.minecraft.util.ResourceLocation;
@@ -18,27 +20,28 @@ public class GuiEntryController extends ControllerStateWrapper implements IGuiLi
 
 	@Override
 	public void updatePosition(int slotIndex, int x, int y, float partialTicks) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
 		ResourceLocation controllerImage = console.getResourceLocation();
-		
+		setConsole(Console.getConsole(MineJoyConfig.controllerType));
+		Minecraft.getMinecraft().getTextureManager().bindTexture(controllerImage);
 		Gui.drawModalRectWithCustomSizedTexture(x, y, 0f, 0f, 512, 512, 512, 512);
 	}
 
 	@Override
 	public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY) {
-		// TODO Auto-generated method stub
-		return false;
+		return (mouseEvent != 0); 
 	}
 
 	@Override
 	public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY) {
-		// TODO Auto-generated method stub
 		
+	}
+	
+	private void setConsole(Console c) {
+		console = c;
 	}
 	
 	@SubscribeEvent

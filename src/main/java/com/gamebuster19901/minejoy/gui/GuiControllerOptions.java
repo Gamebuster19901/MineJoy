@@ -1,6 +1,9 @@
 package com.gamebuster19901.minejoy.gui;
 
+import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
+import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -11,6 +14,8 @@ public class GuiControllerOptions extends GuiScreen{
 	private int scroll = 0;
 	private String title;
 	private GuiScreen parent;
+	private GuiControllerOptionsList optionsList;
+	private boolean changed = false;
 	
 	public GuiControllerOptions(GuiScreen parent, String title) {
 		this.title = title;
@@ -33,8 +38,24 @@ public class GuiControllerOptions extends GuiScreen{
 		this.buttonList.get(i++).visible = false;
 		
 		this.buttonList.add(new GuiButtonExt(i++, this.width / 2 - 100, this.height - 20, I18n.format("gui.done")));
+		
+		changed();
 	}
 	
+	private void changed() {
+		Console console;
+		if(ControllerHandler.INSTANCE.getActiveControllerState() == ControllerStateWrapper.DISCONNECTED_CONTROLLER) {
+			console = Console.getConsole("None");
+		}
+		else {
+			console = Console.getConsole(MineJoyConfig.controllerType);
+		}
+		
+		
+		
+		this.optionsList = new GuiControllerOptionsList(mc, 200, this.height, null);
+	}
+
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.drawBackground(0);
