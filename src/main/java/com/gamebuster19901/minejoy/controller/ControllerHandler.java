@@ -2,6 +2,8 @@ package com.gamebuster19901.minejoy.controller;
 
 import java.util.ArrayList;
 
+import org.lwjgl.opengl.Display;
+
 import com.gamebuster19901.minejoy.Minejoy;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.studiohartman.jamepad.ControllerIndex;
@@ -23,7 +25,7 @@ public enum ControllerHandler {
 			Thread.currentThread().setName("Minejoy Controller Thread");
 			try {
 				while(Minejoy.isEnabled()) {
-					if(controllerManager.getNumControllers() > 0) {
+					if(controllerManager.getNumControllers() > 0 && Display.isActive()) {
 						try {
 							Thread.sleep(1);
 							if (Thread.interrupted()) {
@@ -79,7 +81,7 @@ public enum ControllerHandler {
 	
 	@SubscribeEvent
 	public final void everyTick(ClientTickEvent e) {
-		if(controllerManager.getNumControllers() > 0 && Minejoy.isEnabled()) {
+		if(controllerManager.getNumControllers() > 0 && Minejoy.isEnabled() && Display.isActive()) {
 			ControllerStateWrapper state = getActiveControllerState();
 			
 			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
