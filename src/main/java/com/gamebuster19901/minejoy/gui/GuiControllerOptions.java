@@ -1,5 +1,9 @@
 package com.gamebuster19901.minejoy.gui;
 
+import java.io.IOException;
+
+import org.lwjgl.input.Mouse;
+
 import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
 import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
@@ -54,6 +58,11 @@ public class GuiControllerOptions extends GuiScreen{
 		
 		
 		this.optionsList = new GuiControllerOptionsList(mc, 200, this.height, null);
+	}
+	
+	@Override
+	public void handleMouseInput() throws IOException {
+		super.handleMouseInput();
 	}
 
 	@Override
