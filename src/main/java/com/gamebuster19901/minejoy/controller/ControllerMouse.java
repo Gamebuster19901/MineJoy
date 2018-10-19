@@ -1,109 +1,118 @@
 package com.gamebuster19901.minejoy.controller;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
+import java.awt.AWTException;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
-import org.lwjgl.input.Mouse;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import org.lwjgl.opengl.Display;
 
 import com.gamebuster19901.minejoy.binding.ControllerButtonBinding;
-import com.gamebuster19901.minejoy.gui.GuiPossibleModIncompatability;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiScreenResourcePacks;
-import net.minecraft.client.gui.GuiVideoSettings;
-import net.minecraft.client.gui.GuiWorldSelection;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Slot;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraftforge.client.event.GuiScreenEvent;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public enum ControllerMouse{
 	
 	INSTANCE;
 	
-	private static final Minecraft mc = Minecraft.getMinecraft();
-	private static final Field BUTTON_FIELD = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
-	private static final Field MOUSE_BUTTONS = ReflectionHelper.findField(Mouse.class, "buttons");
-	private static final Field EVENT_BUTTON = ReflectionHelper.findField(Mouse.class, "eventButton");
-	private static final Field MOUSE_BUTTON_STATE = ReflectionHelper.findField(Mouse.class, "eventState");
+	private static final int TOP;
+	private static final int LEFT;
 	
-	private static final Method CLICK_MOUSE_METHOD = ReflectionHelper.findMethod(Minecraft.class, "clickMouse", "func_147116_af");
-	private static final Method MOUSE_PRESS_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClicked", "func_73864_a", int.class, int.class, int.class);
-	private static final Method MOUSE_DRAG_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseClickMove", "func_146273_a", int.class, int.class, int.class, long.class);
- 	private static final Method MOUSE_RELEASE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "mouseReleased", "func_146286_b", int.class, int.class, int.class);
- 	private static final Method KEY_TYPE_METHOD = ReflectionHelper.findMethod(GuiScreen.class, "keyTyped", "func_73869_a", char.class, int.class);
- 	private static final Method SLOT_CLICKED_METHOD = ReflectionHelper.findMethod(GuiContainer.class, "handleMouseClick", "func_184098_a", Slot.class, int.class, int.class, ClickType.class);
+	private static final Robot ROBOT;
+	static {
+		JFrame FRAME = new JFrame();
+		JPanel PANEL = new JPanel();
+		FRAME.add(PANEL);
+		FRAME.setVisible(true);
+		Point panelPoint = PANEL.getLocationOnScreen();
+		TOP = panelPoint.y;
+		LEFT = panelPoint.x;
+		
+		FRAME.setVisible(false);
+		FRAME.dispose();
+		try {
+			ROBOT = new Robot();
+		} catch (AWTException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private static final Minecraft mc = Minecraft.getMinecraft();
  	
  	private float deltaX = 0;
  	private float deltaY = 0;
  	
  	private ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+ 	private ControllerStateWrapper lastStateNoGL = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+ 	
  	private BlockPos lastBlockPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
  	private BlockPos lastPlayerPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
  	private EnumFacing lastFace = EnumFacing.DOWN;
  	
- 	static boolean wasGUIJustOpen = true;
+ 	public static volatile boolean wasGUIJustOpen = true;
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
-		Mouse.getEventX();
-		Mouse.getEventY();
+ 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+ 		gd.getDisplayMode();
+ 		
 		ControllerStateWrapper state = e.getModifiedControllerState();
-		
 		
 		GuiScreen gui = mc.currentScreen;
 		EntityPlayer player = mc.player;
 		
 		if(state.leftStickMagnitude > 0.3) {
-			
+			Display.getDrawable();
 			if(gui != null) {
 				deltaX += state.leftStickX * state.leftStickMagnitude;
 				deltaY += state.leftStickY * state.leftStickMagnitude;
+				
 				while(deltaX > 1 || deltaX < -1) {
 					if(deltaX > 1) {
-						Mouse.setCursorPosition(Mouse.getX() + 1, Mouse.getY());
+						moveMouseRelative(1, 0);
 						deltaX--;
 					}
 					else if (deltaX < -1){
-						Mouse.setCursorPosition(Mouse.getX() - 1, Mouse.getY());
+						moveMouseRelative(-1, 0);
 						deltaX++;
 					}
 				}
 				
 				while(deltaY > 1 || deltaY < -1) {
-					if(deltaY > 1) {
-						Mouse.setCursorPosition(Mouse.getX(), Mouse.getY() + 1);
+					if(deltaY > -1) {
+						moveMouseRelative(0, 1);
 						deltaY--;
 					}
-					else if (deltaY < -1) {
-						Mouse.setCursorPosition(Mouse.getX(), Mouse.getY() - 1);
+					else if (deltaY < 1) {
+						moveMouseRelative(0, -1);
 						deltaY++;
 					}
 				}
@@ -121,222 +130,183 @@ public enum ControllerMouse{
  	}
  	
  	@SubscribeEvent
-	public void onControllerEvent(ControllerEvent.Post e) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, IOException {
- 		ByteBuffer mouseButtons = (ByteBuffer) MOUSE_BUTTONS.get(null);
+ 	public void onControllerEventNoGL(ControllerEventNoGL.Post e) {
+ 		ControllerStateWrapper state = e.getModifiedControllerState();
+ 		GuiScreen gui = mc.currentScreen;
+ 		if(gui != null) {
+ 			if(state.aJustPressed) {
+ 				ROBOT.mousePress(InputEvent.getMaskForButton(1));
+ 			}
+ 			else if(!state.a && lastStateNoGL.a) {
+ 				ROBOT.mouseRelease(InputEvent.getMaskForButton(1));
+ 			}
+ 			
+ 			if(state.xJustPressed && wasGUIJustOpen) {
+ 				ROBOT.mousePress(InputEvent.getMaskForButton(3));
+ 			}
+ 			else if(!state.x && lastStateNoGL.x) {
+ 				ROBOT.mouseRelease(InputEvent.getMaskForButton(3));
+ 			}
+ 			
+ 			if(state.yJustPressed) {
+ 				ROBOT.keyPress(KeyEvent.VK_SHIFT);
+ 				ROBOT.mousePress(InputEvent.getMaskForButton(1));
+ 			}
+ 			else if(!state.y && lastStateNoGL.y) {
+ 				ROBOT.keyRelease(KeyEvent.VK_SHIFT);
+ 				ROBOT.mouseRelease(InputEvent.getMaskForButton(1));
+ 			}
+ 			
+ 			if(state.bJustPressed || state.backJustPressed) {
+ 				ROBOT.keyPress(KeyEvent.VK_ESCAPE);
+ 				ROBOT.keyRelease(KeyEvent.VK_ESCAPE);
+ 			}
+ 			
+ 			wasGUIJustOpen = true;
+ 		}
+ 		else if(gui == null) {
+ 			wasGUIJustOpen = false;
+			if(state.rightTriggerJustReachedThreshold) {
+				ROBOT.mousePress(InputEvent.getMaskForButton(1));
+				ROBOT.mouseRelease(InputEvent.getMaskForButton(1));
+			}
+ 		}
  		
-		ControllerStateWrapper state = e.getModifiedControllerState();
-		
-		GuiScreen gui = mc.currentScreen;
+		if(state.rightStickJustClicked) {
+			ROBOT.mousePress(InputEvent.getMaskForButton(2));
+		}
+		else {
+			ROBOT.mouseRelease(InputEvent.getMaskForButton(2));
+		}
+ 		
+		lastStateNoGL = state;
+ 	}
+	
+ 	@SubscribeEvent
+ 	public void onControllerEvent(ControllerEvent.Post e) {
+ 		GuiScreen gui = mc.currentScreen;
+ 		ControllerStateWrapper state = e.getControllerState();
 		EntityPlayer player = mc.player;
-		if(gui != null) {
-			wasGUIJustOpen = true;
-			List<GuiButton> buttons = (List<GuiButton>)BUTTON_FIELD.get(gui);
-			for(GuiButton b : buttons) {
-				if(b.isMouseOver() && b.visible && b.enabled) {
-					break;
-				}
-			}
-
-			if(state.aJustPressed) {
-				mouseButtons.put(0, (byte)0b00000001);
-				MOUSE_BUTTON_STATE.setBoolean(null, true);
-				EVENT_BUTTON.setInt(null, 0);
-				gui.handleMouseInput();
-				System.out.println("pressed a");
-			}
-			else if(!state.a && lastState.a) {
-				MOUSE_RELEASE_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 0);
-				System.out.println("released a");
-			}
-			else if (state.a && lastState.a) {
-				mouseButtons.put(0, (byte)0b00000001);
-				boolean mouseState = !(gui instanceof GuiContainer); //see Issue #8
-				MOUSE_BUTTON_STATE.setBoolean(null, false);
-				EVENT_BUTTON.setInt(null, -1);
-				gui.handleMouseInput();
-				MOUSE_DRAG_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 0, 0l);
-				System.out.println("drag a");
+		if(gui == null && player != null && mc.world.isRemote) {
+			if(state.bJustPressed) {
+				player.dropItem(false);
 			}
 			
 			if(state.xJustPressed) {
-				MOUSE_PRESS_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 1);
-				System.out.println("pressed x");
-			}
-			else if (!state.x && lastState.x) {
-				MOUSE_RELEASE_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 1);
-				System.out.println("released x");
-			}
-			else if(state.x && lastState.x) {
-				MOUSE_DRAG_METHOD.invoke(gui, getMouseX(gui), getMouseY(gui), 1, 0l);
-			}
-
-			
-			if(state.yJustPressed) {
-				if(gui instanceof GuiContainer) {
-					GuiContainer guicontainer = (GuiContainer) gui;
-					Slot slot = guicontainer.getSlotUnderMouse();
-					if(slot != null) {
-						if(!MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.MouseInputEvent(gui))) {
-							SLOT_CLICKED_METHOD.invoke(guicontainer, slot, slot.getSlotIndex(), 0, ClickType.QUICK_MOVE);
-						}
-					}
-				}
+				Minecraft.getMinecraft().displayGuiScreen(new GuiInventory(player));
 			}
 			
-			if(state.bJustPressed || state.backJustPressed || state.startJustPressed || state.guideJustPressed) {
-				KEY_TYPE_METHOD.invoke(gui, (char)0x1B, 1);
-			}
-			
-		}
-		else {
-			if(player != null && mc.world.isRemote) {
-				
-				if(GuiPossibleModIncompatability.compatibleControllers.contains(mc.playerController.getClass())){
-
-				}
-				else if(GuiPossibleModIncompatability.overwriteableControllers.contains(mc.playerController.getClass())) {
-					mc.playerController = PlayerControllerMPMinejoy.getNewInstance();
-				}
-				else if(GuiPossibleModIncompatability.knownIncompatabilities.contains(mc.playerController.getClass())) {
-
+			if(state.rbJustPressed) {
+				if(mc.player.inventory.currentItem < 8) {
+					mc.player.inventory.currentItem++;
 				}
 				else {
-					mc.displayGuiScreen(new GuiPossibleModIncompatability(mc.playerController.getClass()));
-					mc.playerController = PlayerControllerMPMinejoy.getNewInstance();
+					mc.player.inventory.currentItem = 0;
 				}
-				
-				if(state.bJustPressed) {
-					player.dropItem(false);
+			}
+			
+			if(state.lbJustPressed) {
+				if(mc.player.inventory.currentItem > 0) {
+					mc.player.inventory.currentItem--;
 				}
-				
-				if(state.xJustPressed) {
-					Minecraft.getMinecraft().displayGuiScreen(new GuiInventory(player));
+				else {
+					mc.player.inventory.currentItem = 8;
 				}
-				
-				if(state.rbJustPressed) {
-					if(mc.player.inventory.currentItem < 8) {
-						mc.player.inventory.currentItem++;
-					}
-					else {
-						mc.player.inventory.currentItem = 0;
-					}
-				}
-				
-				if(state.lbJustPressed) {
-					if(mc.player.inventory.currentItem > 0) {
-						mc.player.inventory.currentItem--;
-					}
-					else {
-						mc.player.inventory.currentItem = 8;
-					}
-				}
-				
-				if(!state.leftTriggerJustReachedThreshold && state.leftTrigger > 0.5) {
-					if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
-						BlockSnapshot blockSnapshot = new BlockSnapshot(player.world, mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit), mc.world.getBlockState(mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit)));
-						IBlockState placedAgainst = player.world.getBlockState(mc.objectMouseOver.getBlockPos());
-						if(MinecraftForge.EVENT_BUS.post(new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player, EnumHand.MAIN_HAND))){
-							mc.playerController.processRightClickBlock((EntityPlayerSP)player, (WorldClient)player.world, mc.objectMouseOver.getBlockPos(), mc.objectMouseOver.sideHit, mc.objectMouseOver.hitVec, EnumHand.MAIN_HAND);
-						}
-					}
-				}
-				
-				if(state.rightTriggerJustReachedThreshold) {
-					CLICK_MOUSE_METHOD.invoke(mc);
-				}
-				
-				if(state.startJustPressed || state.guideJustPressed) {
-					mc.displayInGameMenu();
-				}
-				
-				if(state.yJustPressed) {
-					if (!player.isSpectator()){
-						mc.getConnection().sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
-					}
-				}
-				
-				if(player.getRidingEntity() instanceof EntityBoat) {
-					
-					byte triggerState = 0;
-					
-					if(state.leftTrigger > 0.5) {
-						triggerState ^= 1; //Bit marked by X: [0000000X]
-					}
-					if(state.rightTrigger > 0.5) {
-						triggerState ^= 2; //Bit marked by X: [000000X0]
-					}
-					if(state.back) {
-						triggerState ^= 4; //Bit marked by X: [00000X00]
-					}
-					
-					switch(triggerState) {
-					
-						//going forward
-					
-						case 1:
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-							break;
-						case 2:
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-							break;
-						case 3:
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), true);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-							break;
-							
-						//going backward
-							
-						case 5:
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-							break;
-							
-						case 6:
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-							break;
-							
-						case 7:
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), true);
-							break;
-						default:
-							System.out.println((int)triggerState);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-							KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-							break;
+			}
+			
+			if(!state.leftTriggerJustReachedThreshold && state.leftTrigger > 0.5) {
+				if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
+					BlockSnapshot blockSnapshot = new BlockSnapshot(player.world, mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit), mc.world.getBlockState(mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit)));
+					IBlockState placedAgainst = player.world.getBlockState(mc.objectMouseOver.getBlockPos());
+					if(MinecraftForge.EVENT_BUS.post(new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player, EnumHand.MAIN_HAND))){
+						mc.playerController.processRightClickBlock((EntityPlayerSP)player, (WorldClient)player.world, mc.objectMouseOver.getBlockPos(), mc.objectMouseOver.sideHit, mc.objectMouseOver.hitVec, EnumHand.MAIN_HAND);
 					}
 				}
 			}
+			
+			if(state.startJustPressed || state.guideJustPressed) {
+				mc.displayInGameMenu();
+			}
+			
+			if(state.yJustPressed) {
+				if (!player.isSpectator()){
+					mc.getConnection().sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
+				}
+			}
+			
+			if(player.getRidingEntity() instanceof EntityBoat) {
+				
+				byte triggerState = 0;
+				
+				if(state.leftTrigger > 0.5) {
+					triggerState ^= 1; //Bit marked by X: [0000000X]
+				}
+				if(state.rightTrigger > 0.5) {
+					triggerState ^= 2; //Bit marked by X: [000000X0]
+				}
+				if(state.back) {
+					triggerState ^= 4; //Bit marked by X: [00000X00]
+				}
+				
+				switch(triggerState) {
+				
+					//going forward
+				
+					case 1:
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+						break;
+					case 2:
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+						break;
+					case 3:
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), true);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+						break;
+						
+					//going backward
+						
+					case 5:
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+						break;
+						
+					case 6:
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+						break;
+						
+					case 7:
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), true);
+						break;
+					default:
+						System.out.println((int)triggerState);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+						break;
+				}
+			
+			}
 		}
-		
-	 	lastState = state;
-	}
-	
-	private int getMouseX(GuiScreen gui) {
-		return Mouse.getX() * gui.width / this.mc.displayWidth;
-	}
-	
-	private int getMouseY(GuiScreen gui) {
-		return gui.height - Mouse.getY() * gui.height / this.mc.displayHeight - 1;
-	}
-	
+ 		lastState = e.getModifiedControllerState();
+ 	}
+ 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onItemPlace(PlayerInteractEvent.RightClickBlock e) {
 		if(e.isCanceled()) {return;}
@@ -371,25 +341,23 @@ public enum ControllerMouse{
 		}
 	}
 	
-	private static final List<Class<? extends GuiScreen>> BuggedGuis = 
-		Arrays.asList(
-			GuiWorldSelection.class,
-			GuiMultiplayer.class,
-			GuiScreenResourcePacks.class,
-			GuiVideoSettings.class
-	);
-	
-	@SubscribeEvent
-	public void GuiClickFix(GuiScreenEvent.MouseInputEvent e) {
-		for(Class<? extends GuiScreen> buggedGuiClass : BuggedGuis) {
-			if(e.getGui().getClass().isAssignableFrom(buggedGuiClass) && Mouse.getEventButton() != 0) {
-				e.setCanceled(true);
-				return;
-			}
-		}
-	}
-	
 	private boolean hasPlayerChangedPos(BlockPos currentPlayerPos) {
 		return !(lastPlayerPos.getX() == currentPlayerPos.getX() && lastPlayerPos.getY() == currentPlayerPos.getY() && lastPlayerPos.getZ() == currentPlayerPos.getZ());
+	}
+	
+	private void moveMouseRelative(int relativeX, int relativeY) {
+		Point mouse = MouseInfo.getPointerInfo().getLocation();
+		
+		int top = TOP;
+		int left = LEFT;
+		if(mc.isFullScreen()) {
+			left = 0;
+			top = 0;
+		}
+		
+		int newX = MathHelper.clamp((int)mouse.getX() + relativeX, Display.getX() + left, Display.getX() + Display.getWidth() + left - 1);
+		int newY = MathHelper.clamp((int)mouse.getY() - relativeY, Display.getY() + top, Display.getY() + Display.getHeight() + top);
+		
+		ROBOT.mouseMove(newX, newY);
 	}
 }

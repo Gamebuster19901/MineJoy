@@ -30,15 +30,18 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 public class PlayerControllerMPMinejoy extends PlayerControllerMP{
 
 	@Deprecated
-	public static final PlayerControllerMPMinejoy REGISTRY_INSTANCE = new PlayerControllerMPMinejoy(Minecraft.getMinecraft(), null);
+	public static final PlayerControllerMPMinejoy REGISTRY_INSTANCE = new PlayerControllerMPMinejoy(Minecraft.getMinecraft(), null, null);
 	
 	private static final Minecraft mc = Minecraft.getMinecraft();
 	private static final Field BLOCK = ReflectionHelper.findField(PlayerControllerMP.class, "currentBlock", "field_178895_c");
 	
 	private static final Method SYNC_CURRENT_PLAY_ITEM = ReflectionHelper.findMethod(PlayerControllerMP.class, "syncCurrentPlayItem", "func_78750_j");
 	
-	private PlayerControllerMPMinejoy(Minecraft mcIn, NetHandlerPlayClient netHandler) {
+	private PlayerControllerMPMinejoy(Minecraft mcIn, NetHandlerPlayClient netHandler, GameType gameType) {
 		super(mcIn, netHandler);
+		if(gameType != null) {
+			super.setGameType(gameType);
+		}
 	}
 	
 	/**
@@ -203,8 +206,8 @@ public class PlayerControllerMPMinejoy extends PlayerControllerMP{
 		}
 	}
 	
-	public static PlayerControllerMPMinejoy getNewInstance() {
-		return new PlayerControllerMPMinejoy(Minecraft.getMinecraft(), Minecraft.getMinecraft().getConnection());
+	public static PlayerControllerMPMinejoy getNewInstance(GameType gameType) {
+		return new PlayerControllerMPMinejoy(Minecraft.getMinecraft(), Minecraft.getMinecraft().getConnection(), gameType);
 	}
 
 }
