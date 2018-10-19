@@ -276,7 +276,7 @@ public enum ControllerHandler {
 	}
 	
 	public boolean canSendControllerEvents() {
-		return controllerManager.getNumControllers() > 0 && Display.isCreated() && Display.isActive();
+		return Minejoy.isEnabled() && controllerManager.getNumControllers() > 0 && Display.isCreated() && Display.isActive();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {
