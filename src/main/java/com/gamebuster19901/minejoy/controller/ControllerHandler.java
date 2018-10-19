@@ -74,7 +74,7 @@ public enum ControllerHandler {
 				}
 				else {
 					ex = new RuntimeException("Minejoy had an exception while processing inputs while shutting down, we can usually ignore this, but we will print the stacktrace just in case", e);
-					e.printStackTrace();
+					Minejoy.LOGGER.catching(ex);
 				}
 			}
 		}
@@ -140,6 +140,7 @@ public enum ControllerHandler {
 		if(isControllerIndexPluggedIn(index)) {
 			activeController = index;
 		}
+		CONTROLLER_THREAD.setDaemon(true);
 		CONTROLLER_THREAD.start();
 		vibrate(activeController, 1f, 1f, 1500);
 	}
