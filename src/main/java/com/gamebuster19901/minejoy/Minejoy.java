@@ -5,7 +5,9 @@ import static com.gamebuster19901.minejoy.Minejoy.MODNAME;
 import static com.gamebuster19901.minejoy.Minejoy.VERSION;
 
 import java.awt.HeadlessException;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.gamebuster19901.minejoy.binding.ControllerButtonBinding;
 import com.gamebuster19901.minejoy.config.MineJoyConfig;
@@ -38,7 +40,7 @@ public class Minejoy {
 	public static final String MODID = "minejoy";
 	public static final String MODNAME = "MineJoy";
 	public static final String VERSION = "0.8.0.0";
-	public static final Logger LOGGER = Logger.getLogger(MODNAME);
+	public static final Logger LOGGER = LogManager.getLogger(MODNAME);
 	private static boolean enabled = true;
 	
 	@Mod.Instance()
