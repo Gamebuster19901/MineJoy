@@ -1,6 +1,7 @@
 package com.gamebuster19901.minejoy.controller;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import org.lwjgl.opengl.Display;
 
@@ -125,7 +126,7 @@ public enum ControllerHandler {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
 					Thread.currentThread().setName("Minejoy Shutdown Thread");
-					System.out.println("Game ended, shutting down Minejoy and Jamepad!");
+					Minejoy.LOGGER.log(Level.INFO, "Game ended, shutting down Minejoy and Jamepad!");
 					if(CONTROLLER_THREAD.isAlive()) {
 						Minejoy.setAvailibility(false);
 						while(CONTROLLER_THREAD.isAlive());
@@ -144,7 +145,7 @@ public enum ControllerHandler {
 	}
 	
 	public void disable() {
-		System.out.println("Minejoy disabled, shutting down Minejoy and Jamepad!");
+		Minejoy.LOGGER.log(Level.INFO, "Minejoy disabled, shutting down Minejoy and Jamepad!");
 		if(CONTROLLER_THREAD.isAlive()) {
 			Minejoy.setAvailibility(false);
 			while(CONTROLLER_THREAD.isAlive());
