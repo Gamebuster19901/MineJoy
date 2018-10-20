@@ -1,7 +1,8 @@
 package com.gamebuster19901.minejoy.controller;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
+
+import org.apache.logging.log4j.Level;
 
 import org.lwjgl.opengl.Display;
 
