@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import org.apache.logging.log4j.Level;
 
-import org.lwjgl.opengl.Display;
-
 import com.gamebuster19901.minejoy.Minejoy;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.studiohartman.jamepad.ControllerIndex;
@@ -278,7 +276,7 @@ public enum ControllerHandler {
 	}
 	
 	public boolean canSendControllerEvents() {
-		return Minejoy.isEnabled() && controllerManager.getNumControllers() > 0 && Display.isCreated() && Display.isActive();
+		return Minejoy.isEnabled() && controllerManager.getNumControllers() > 0 && ControllerMouse.INSTANCE.isMouseWithinBounds();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {

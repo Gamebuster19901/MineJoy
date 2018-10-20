@@ -1,13 +1,15 @@
 package com.gamebuster19901.minejoy.controller;
 
 import java.awt.AWTException;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -38,6 +40,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public enum ControllerMouse{
 	
@@ -45,9 +48,30 @@ public enum ControllerMouse{
 	
 	private static final int TOP;
 	private static final int LEFT;
+	private static final Class<?> DISPLAY_IMPLEMENTATION_CLASS; 
+	private static final Field display_impl_field = ReflectionHelper.findField(Display.class, "display_impl");
+	private static final Method getX; 
+	private static final Method getY;
+	
+	private static final Object display_impl;
 	
 	private static final Robot ROBOT;
 	static {
+		try {
+			DISPLAY_IMPLEMENTATION_CLASS = Class.forName("org.lwjgl.opengl.DisplayImplementation") ;
+		} catch (ClassNotFoundException e1) {
+			throw new AssertionError(e1);
+		}
+		
+		getX = ReflectionHelper.findMethod(DISPLAY_IMPLEMENTATION_CLASS, "getX", "getX");
+		getY = ReflectionHelper.findMethod(DISPLAY_IMPLEMENTATION_CLASS, "getY", "getY");
+		
+		try {
+			display_impl = display_impl_field.get(null);
+		} catch (IllegalArgumentException | IllegalAccessException e1) {
+			throw new AssertionError(e1);
+		}
+		 
 		JFrame FRAME = new JFrame();
 		JPanel PANEL = new JPanel();
 		FRAME.add(PANEL);
@@ -77,20 +101,16 @@ public enum ControllerMouse{
  	private BlockPos lastPlayerPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
  	private EnumFacing lastFace = EnumFacing.DOWN;
  	
- 	public static volatile boolean wasGUIJustOpen = true;
+ 	public static boolean wasGUIJustOpen = true;
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
- 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
- 		gd.getDisplayMode();
- 		
 		ControllerStateWrapper state = e.getModifiedControllerState();
 		
 		GuiScreen gui = mc.currentScreen;
 		EntityPlayer player = mc.player;
 		
 		if(state.leftStickMagnitude > 0.3) {
-			Display.getDrawable();
 			if(gui != null) {
 				deltaX += state.leftStickX * state.leftStickMagnitude;
 				deltaY += state.leftStickY * state.leftStickMagnitude;
@@ -355,9 +375,37 @@ public enum ControllerMouse{
 			top = 0;
 		}
 		
-		int newX = MathHelper.clamp((int)mouse.getX() + relativeX, Display.getX() + left, Display.getX() + Display.getWidth() + left - 1);
-		int newY = MathHelper.clamp((int)mouse.getY() - relativeY, Display.getY() + top, Display.getY() + Display.getHeight() + top);
+		int[] pos = getWindowPosition();
+		
+		int newX = MathHelper.clamp((int)mouse.getX() + relativeX, pos[0] + left, pos[0] + mc.displayWidth + left - 1);
+		int newY = MathHelper.clamp((int)mouse.getY() - relativeY, pos[1] + top, pos[1] + mc.displayHeight + top);
 		
 		ROBOT.mouseMove(newX, newY);
+	}
+	
+	public boolean isMouseWithinBounds() {
+		Point mouse = MouseInfo.getPointerInfo().getLocation();
+		
+		int top = TOP;
+		int left = LEFT;
+		if(mc.isFullScreen()) {
+			left = 0;
+			top = 0;
+		}
+		
+		int[] pos = getWindowPosition();
+		
+		return (int)mouse.getX() >= pos[0] + left 
+			&& (int)mouse.getX() <= pos[0] + mc.displayWidth + left - 1
+			&& (int)mouse.getY() >= pos[1] + top
+			&& (int)mouse.getY() <= pos[1] + mc.displayHeight + top;
+	}
+	
+	public int[] getWindowPosition() { //must use this method so we don't lock the minejoy thread
+		try {
+			return new int[] {(int) getX.invoke(display_impl), (int) getY.invoke(display_impl)};
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new AssertionError(e);
+		}
 	}
 }
