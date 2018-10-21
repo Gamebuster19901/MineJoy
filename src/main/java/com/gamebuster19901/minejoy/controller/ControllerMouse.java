@@ -195,7 +195,7 @@ public enum ControllerMouse{
 		if(state.rightStickJustClicked) {
 			ROBOT.mousePress(InputEvent.getMaskForButton(2));
 		}
-		else {
+		else if(!state.rightStickClick && lastStateNoGL.rightStickClick){
 			ROBOT.mouseRelease(InputEvent.getMaskForButton(2));
 		}
  		
