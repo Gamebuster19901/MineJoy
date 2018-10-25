@@ -2,8 +2,6 @@ package com.gamebuster19901.minejoy.gui;
 
 import java.io.IOException;
 
-import org.lwjgl.input.Mouse;
-
 import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
 import com.gamebuster19901.minejoy.controller.ControllerStateWrapper;
