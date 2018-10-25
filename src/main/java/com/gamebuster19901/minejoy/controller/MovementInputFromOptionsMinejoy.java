@@ -1,6 +1,8 @@
 package com.gamebuster19901.minejoy.controller;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.util.MovementInputFromOptions;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -9,6 +11,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 public final class MovementInputFromOptionsMinejoy extends MovementInputFromOptions{
 	
 	private static  MovementInputFromOptionsMinejoy INSTANCE = new MovementInputFromOptionsMinejoy();
+	
+	private int sprintToggleTimer = 0;
+	private float lastY = 0;
+	private float y = 0;
 
 	private MovementInputFromOptionsMinejoy() {
 		super(Minecraft.getMinecraft().gameSettings);
@@ -77,8 +83,39 @@ public final class MovementInputFromOptionsMinejoy extends MovementInputFromOpti
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onTick(ClientTickEvent e) {
 		if(Minecraft.getMinecraft().player != null) {
-			Minecraft.getMinecraft().player.movementInput = this;
+			
+			if(sprintToggleTimer > 0) {
+				sprintToggleTimer--;
+			}
+			
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
+			player.movementInput = this;
+			
+			/*
+			 * See EntityPlayerSP#OnUpdate
+			 */
+			
+			boolean flag1 = !this.sneak;
+			boolean flag2 = y >= 0.8 && lastY < 0.8;
+			boolean flag4 = player.getFoodStats().getFoodLevel() > 6.0f || player.capabilities.allowFlying;
+			
+			if(flag1 && flag2 && flag4 && !player.isHandActive() && !player.isPotionActive(MobEffects.BLINDNESS)) {
+				sprintToggleTimer += 20;
+				if(sprintToggleTimer >= 25) {
+					player.setSprinting(true);
+				}
+			}
+			
+			if(sprintToggleTimer > 15) {
+				sprintToggleTimer = 15;
+			}
 		}
+	}
+	
+	@SubscribeEvent
+	public void onControllerEvent(ControllerEvent.Post e) {
+		this.lastY = y;
+		this.y = e.getControllerState().leftStickY;
 	}
 	
 	public static final MovementInputFromOptionsMinejoy getInstance() {

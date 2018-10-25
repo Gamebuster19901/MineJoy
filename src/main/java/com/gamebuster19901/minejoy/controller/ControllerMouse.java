@@ -98,8 +98,8 @@ public enum ControllerMouse{
  	private float deltaY = 0;
  	
  	@SuppressWarnings("unused")
-	private ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
- 	private ControllerStateWrapper lastStateNoGL = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+	ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+ 	ControllerStateWrapper lastStateNoGL = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
  	
 
  	
@@ -242,9 +242,13 @@ public enum ControllerMouse{
 			else if(state.leftTriggerJustReachedThreshold) {
 				try {
 					right_click_mouse.invoke(mc);
+					KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
 					throw new AssertionError(e1);
 				}
+			}
+			else if(state.leftTriggerJustStoppedInputting) {
+				KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
 			}
 
 			
