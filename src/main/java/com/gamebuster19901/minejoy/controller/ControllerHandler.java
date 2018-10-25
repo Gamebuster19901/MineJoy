@@ -212,7 +212,7 @@ public enum ControllerHandler {
 	 * Should only be called on ControllerEvent.Pre, or it will return the current state instead
 	 * of the previous state.
 	 * 
-	 * This wrapper will reflect the unmodified state of the controller 1 tick ago, as modified by any enabled layouts
+	 * This wrapper will reflect the state of the controller 1 tick ago, as modified by any enabled layouts
 	 * 
 	 * @see com.gamebuster19901.minejoy.controller.layout.Layout
 	 */
@@ -226,6 +226,10 @@ public enum ControllerHandler {
 	
 	public boolean isControllerIndexPluggedIn(int index) {
 		return getControllerIndex(index).isConnected();
+	}
+	
+	public boolean isActiveControllerPluggedIn() {
+		return getControllerIndex(getActiveControllerIndex().getIndex()).isConnected();
 	}
 	
 	public ArrayList<ControllerState> getAllControllerStates(){
@@ -276,7 +280,7 @@ public enum ControllerHandler {
 	}
 	
 	public boolean canSendControllerEvents() {
-		return Minejoy.isEnabled() && controllerManager.getNumControllers() > 0 && ControllerMouse.INSTANCE.isMouseWithinBounds();
+		return Minejoy.isEnabled() && controllerManager.getNumControllers() > 0 && isActiveControllerPluggedIn() && ControllerMouse.INSTANCE.isMouseWithinBounds();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {
