@@ -7,38 +7,29 @@ import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
-import com.gamebuster19901.minejoy.binding.ControllerButtonBinding;
+import com.gamebuster19901.minejoy.controller.PlacementHandler.MoveOneMeterEvent;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult.Type;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -48,15 +39,21 @@ public enum ControllerMouse{
 	
 	private static final int TOP;
 	private static final int LEFT;
-	private static final Class<?> DISPLAY_IMPLEMENTATION_CLASS; 
-	private static final Field display_impl_field = ReflectionHelper.findField(Display.class, "display_impl");
 	private static final Method getX; 
 	private static final Method getY;
 	
 	private static final Object display_impl;
 	
 	private static final Robot ROBOT;
+	
+	private static final Method click_mouse;
+	private static final Method middle_click_mouse;
+	private static final Method right_click_mouse;
+	
 	static {
+		
+		Class<?> DISPLAY_IMPLEMENTATION_CLASS;
+		
 		try {
 			DISPLAY_IMPLEMENTATION_CLASS = Class.forName("org.lwjgl.opengl.DisplayImplementation") ;
 		} catch (ClassNotFoundException e1) {
@@ -65,9 +62,12 @@ public enum ControllerMouse{
 		
 		getX = ReflectionHelper.findMethod(DISPLAY_IMPLEMENTATION_CLASS, "getX", "getX");
 		getY = ReflectionHelper.findMethod(DISPLAY_IMPLEMENTATION_CLASS, "getY", "getY");
+		click_mouse = ReflectionHelper.findMethod(Minecraft.class, "clickMouse", "func_147116_af");
+		middle_click_mouse = ReflectionHelper.findMethod(Minecraft.class, "middleClickMouse", "func_147112_ai");
+		right_click_mouse = ReflectionHelper.findMethod(Minecraft.class, "rightClickMouse", "func_147121_ag");
 		
 		try {
-			display_impl = display_impl_field.get(null);
+			display_impl = ReflectionHelper.findField(Display.class, "display_impl").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException e1) {
 			throw new AssertionError(e1);
 		}
@@ -82,6 +82,7 @@ public enum ControllerMouse{
 		
 		FRAME.setVisible(false);
 		FRAME.dispose();
+		
 		try {
 			ROBOT = new Robot();
 		} catch (AWTException e) {
@@ -91,17 +92,16 @@ public enum ControllerMouse{
 	
 	private static final Minecraft mc = Minecraft.getMinecraft();
  	
+ 	public static boolean wasGUIJustOpen = true;
+	
  	private float deltaX = 0;
  	private float deltaY = 0;
  	
- 	private ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+ 	@SuppressWarnings("unused")
+	private ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
  	private ControllerStateWrapper lastStateNoGL = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
  	
- 	private BlockPos lastBlockPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
- 	private BlockPos lastPlayerPos = BlockPos.ORIGIN.offset(EnumFacing.DOWN);
- 	private EnumFacing lastFace = EnumFacing.DOWN;
- 	
- 	public static boolean wasGUIJustOpen = true;
+
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
@@ -155,26 +155,26 @@ public enum ControllerMouse{
  		GuiScreen gui = mc.currentScreen;
  		if(gui != null) {
  			if(state.aJustPressed) {
- 				ROBOT.mousePress(InputEvent.getMaskForButton(1));
+ 				ROBOT.mousePress(InputEvent.BUTTON1_DOWN_MASK);
  			}
  			else if(!state.a && lastStateNoGL.a) {
- 				ROBOT.mouseRelease(InputEvent.getMaskForButton(1));
+ 				ROBOT.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
  			}
  			
  			if(state.xJustPressed && wasGUIJustOpen) {
- 				ROBOT.mousePress(InputEvent.getMaskForButton(3));
+ 				ROBOT.mousePress(InputEvent.BUTTON3_DOWN_MASK);
  			}
  			else if(!state.x && lastStateNoGL.x) {
- 				ROBOT.mouseRelease(InputEvent.getMaskForButton(3));
+ 				ROBOT.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
  			}
  			
  			if(state.yJustPressed) {
  				ROBOT.keyPress(KeyEvent.VK_SHIFT);
- 				ROBOT.mousePress(InputEvent.getMaskForButton(1));
+ 				ROBOT.mousePress(InputEvent.BUTTON1_DOWN_MASK);
  			}
  			else if(!state.y && lastStateNoGL.y) {
  				ROBOT.keyRelease(KeyEvent.VK_SHIFT);
- 				ROBOT.mouseRelease(InputEvent.getMaskForButton(1));
+ 				ROBOT.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
  			}
  			
  			if(state.bJustPressed || state.backJustPressed) {
@@ -186,17 +186,14 @@ public enum ControllerMouse{
  		}
  		else if(gui == null) {
  			wasGUIJustOpen = false;
-			if(state.rightTriggerJustReachedThreshold) {
-				ROBOT.mousePress(InputEvent.getMaskForButton(1));
-				ROBOT.mouseRelease(InputEvent.getMaskForButton(1));
-			}
  		}
  		
 		if(state.rightStickJustClicked) {
-			ROBOT.mousePress(InputEvent.getMaskForButton(2));
-		}
-		else if(!state.rightStickClick && lastStateNoGL.rightStickClick){
-			ROBOT.mouseRelease(InputEvent.getMaskForButton(2));
+			try {
+				middle_click_mouse.invoke(mc);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+				throw new AssertionError(e1);
+			}
 		}
  		
 		lastStateNoGL = state;
@@ -234,15 +231,22 @@ public enum ControllerMouse{
 				}
 			}
 			
-			if(!state.leftTriggerJustReachedThreshold && state.leftTrigger > 0.5) {
-				if(mc.objectMouseOver.typeOfHit == Type.BLOCK) {
-					BlockSnapshot blockSnapshot = new BlockSnapshot(player.world, mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit), mc.world.getBlockState(mc.objectMouseOver.getBlockPos().offset(mc.objectMouseOver.sideHit)));
-					IBlockState placedAgainst = player.world.getBlockState(mc.objectMouseOver.getBlockPos());
-					if(MinecraftForge.EVENT_BUS.post(new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player, EnumHand.MAIN_HAND))){
-						mc.playerController.processRightClickBlock((EntityPlayerSP)player, (WorldClient)player.world, mc.objectMouseOver.getBlockPos(), mc.objectMouseOver.sideHit, mc.objectMouseOver.hitVec, EnumHand.MAIN_HAND);
-					}
+			if(state.rightTriggerJustReachedThreshold) {
+				try {
+					click_mouse.invoke(mc);
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+					throw new AssertionError(e1);
 				}
 			}
+			
+			else if(state.leftTriggerJustReachedThreshold) {
+				try {
+					right_click_mouse.invoke(mc);
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+					throw new AssertionError(e1);
+				}
+			}
+
 			
 			if(state.startJustPressed || state.guideJustPressed) {
 				mc.displayInGameMenu();
@@ -326,44 +330,32 @@ public enum ControllerMouse{
 		}
  		lastState = e.getModifiedControllerState();
  	}
+
  	
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onItemPlace(PlayerInteractEvent.RightClickBlock e) {
-		if(e.isCanceled()) {return;}
-		if(((ControllerButtonBinding)mc.gameSettings.keyBindUseItem).lastPressWasController()){
-			BlockPos playerPos = e.getEntityPlayer().getPosition();
-			if(e.getWorld().isRemote) {
-				if(lastState.leftTriggerJustReachedThreshold) {
-					System.out.println(lastState.leftTriggerJustReachedThreshold);
-					lastBlockPos = e.getPos().offset(e.getFace());
-					lastPlayerPos = playerPos;
-					System.out.println(1);
-				}
-				else if(!hasPlayerChangedPos(playerPos)) {
-					System.out.println(2);
-					if(lastBlockPos.getX() == e.getPos().getX() && lastBlockPos.getY() == e.getPos().getY() && lastBlockPos.getZ() == e.getPos().getZ()){
-						System.out.println(3);
-						e.setCanceled(true);
-					}
-				}
-				else {
-					if(e.getFace() != lastFace) {
-						e.setCanceled(true);
-					}
-				}
-				if(!e.isCanceled()) {
-					System.out.println(4);
-					lastBlockPos = e.getPos().offset(e.getFace());
-					lastPlayerPos = playerPos;
-					lastFace = e.getFace();
-				}
+ 	@SubscribeEvent
+ 	public void onMove(MoveOneMeterEvent e) {
+ 		if(isHoldingPlaceButton()) {
+ 			try {
+				right_click_mouse.invoke(mc);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+				throw new AssertionError(e1);
 			}
-		}
-	}
-	
-	private boolean hasPlayerChangedPos(BlockPos currentPlayerPos) {
-		return !(lastPlayerPos.getX() == currentPlayerPos.getX() && lastPlayerPos.getY() == currentPlayerPos.getY() && lastPlayerPos.getZ() == currentPlayerPos.getZ());
-	}
+ 		}
+ 	}
+ 	
+ 	private boolean isHoldingPlaceButton() {
+ 		if(ControllerHandler.INSTANCE.getActiveControllerState().leftTrigger > 0.5) {
+ 			return true;
+ 		}
+ 		
+ 		int keycode = mc.gameSettings.keyBindUseItem.getKeyCode();
+ 		
+ 		if(keycode < 0) {
+ 			keycode = keycode + 100;
+ 			return Mouse.isButtonDown(keycode);
+ 		}
+ 		return Keyboard.isKeyDown(keycode);
+ 	}
 	
 	private void moveMouseRelative(int relativeX, int relativeY) {
 		Point mouse = MouseInfo.getPointerInfo().getLocation();
