@@ -97,8 +97,7 @@ public enum ControllerMouse{
  	private float deltaX = 0;
  	private float deltaY = 0;
  	
- 	@SuppressWarnings("unused")
-	ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
+ 	ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
  	ControllerStateWrapper lastStateNoGL = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
  	
 
