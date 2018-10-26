@@ -29,7 +29,7 @@ import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -347,6 +347,20 @@ public enum ControllerMouse{
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
 				throw new AssertionError(e1);
 			}
+ 		}
+ 	}
+ 	
+ 	@SubscribeEvent
+ 	public void onItemUse(LivingEntityUseItemEvent.Finish e) {
+ 		if(e.getEntity().equals(mc.player)) {
+ 			if(isHoldingPlaceButton()) {
+ 				try {
+	 				right_click_mouse.invoke(mc);
+	 				KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
+ 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+ 					throw new AssertionError(e1);
+ 				}
+ 			}
  		}
  	}
  	
