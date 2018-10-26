@@ -234,12 +234,16 @@ public enum ControllerMouse{
 			if(state.rightTriggerJustReachedThreshold) {
 				try {
 					click_mouse.invoke(mc);
+					KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), true);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
 					throw new AssertionError(e1);
 				}
 			}
+			else if(state.rightTriggerJustStoppedInputting) {
+				KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), false);
+			}
 			
-			else if(state.leftTriggerJustReachedThreshold) {
+			if(!state.rightTriggerJustReachedThreshold && state.leftTriggerJustReachedThreshold) {
 				try {
 					right_click_mouse.invoke(mc);
 					KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
