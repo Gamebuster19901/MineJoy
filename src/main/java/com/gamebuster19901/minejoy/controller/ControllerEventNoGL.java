@@ -1,7 +1,5 @@
 package com.gamebuster19901.minejoy.controller;
 
-import com.studiohartman.jamepad.ControllerIndex;
-
 /**
  * This event is posted every millisecond but is not safe for rendering as the thread it is in has no OpenGL context
  * 
@@ -9,8 +7,8 @@ import com.studiohartman.jamepad.ControllerIndex;
  * moving the mouse cursor.
  */
 public abstract class ControllerEventNoGL extends ControllerEvent{
-	public ControllerEventNoGL(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
-		super(index, state, unsafe);
+	public ControllerEventNoGL(int index, ControllerStateWrapper state) {
+		super(index, state);
 	}
 	
 	/**
@@ -22,8 +20,8 @@ public abstract class ControllerEventNoGL extends ControllerEvent{
 	@Deprecated
 	public static class Pre extends ControllerEventNoGL{
 
-		public Pre(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
-			super(index, state, unsafe);
+		public Pre(int index, ControllerStateWrapper state) {
+			super(index, state);
 		}
 		
 	}
@@ -33,8 +31,8 @@ public abstract class ControllerEventNoGL extends ControllerEvent{
 	 */
 	public static class Post extends ControllerEventNoGL{
 
-		public Post(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
-			super(index, state, unsafe);
+		public Post(int index, ControllerStateWrapper state) {
+			super(index, state);
 		}
 		
 	}

@@ -47,7 +47,6 @@ public class GuiEntryController extends ControllerStateWrapper implements IGuiLi
 	@SubscribeEvent
 	public void onControllerEvent(ControllerEvent.Post e) {
 		ControllerStateWrapper state = e.getControllerState();
-		jamePadState = state.getJamepadState();
 		isConnected = state.isConnected;
 		controllerType = state.controllerType;
 		leftStickX = state.leftStickX;

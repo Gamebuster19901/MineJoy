@@ -1,22 +1,8 @@
 package com.gamebuster19901.minejoy.controller;
 
-import com.studiohartman.jamepad.ControllerState;
-
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
 public class ControllerStateWrapper {
 	
-	public static final ControllerStateWrapper DISCONNECTED_CONTROLLER = new ControllerStateWrapper();
-	private static final ControllerState JAMEPAD_DISCONNECTED_CONTROLLER;
-	static {
-		try {
-			JAMEPAD_DISCONNECTED_CONTROLLER = (ControllerState) ReflectionHelper.findField(ControllerState.class, "DISCONNECTED_CONTROLLER").get(null);
-		} catch (Exception e) {
-			throw new ExceptionInInitializerError(e);
-		}
-	}
-	
-	protected ControllerState jamePadState = JAMEPAD_DISCONNECTED_CONTROLLER;
+	public static final ControllerStateWrapper DISCONNECTED_CONTROLLER = new ControllerStateWrapper((ControllerState)null);
 	
 	 /**
      * Whether or not the controller is currently connected.
@@ -258,39 +244,39 @@ public class ControllerStateWrapper {
     public boolean dpadRightJustPressed = false;
 	
 	public ControllerStateWrapper(ControllerState state) {
-		jamePadState = state;
-		isConnected = state.isConnected;
-		controllerType = state.controllerType;
-		leftStickX = state.leftStickX;
-		leftStickY = state.leftStickY;
-		rightStickX = state.rightStickX;
-		rightStickY = state.rightStickY;
-		leftStickAngle = state.leftStickAngle;
-		leftStickMagnitude = state.leftStickMagnitude;
-		rightStickAngle = state.rightStickAngle;
-		rightStickMagnitude = state.rightStickMagnitude;
-		leftStickClick = state.leftStickClick;
-		rightStickClick = state.rightStickClick;
-		leftTrigger = state.leftTrigger;
-		rightTrigger = state.rightTrigger;
-		
-		a = state.a;
-		b = state.b;
-		x = state.x;
-		y = state.y;
-		lb = state.lb;
-		rb = state.rb;
-		start = state.start;
-		back = state.back;
-		guide = state.guide;
-		dpadUp = state.dpadUp;
-		dpadDown = state.dpadDown;
-		dpadLeft = state.dpadLeft;
-		dpadRight = state.dpadRight;
+		if(state != null) {
+			isConnected = state.isConnected;
+			controllerType = state.controllerType;
+			leftStickX = state.leftStickX;
+			leftStickY = state.leftStickY;
+			rightStickX = state.rightStickX;
+			rightStickY = state.rightStickY;
+			leftStickAngle = state.leftStickAngle;
+			leftStickMagnitude = state.leftStickMagnitude;
+			rightStickAngle = state.rightStickAngle;
+			rightStickMagnitude = state.rightStickMagnitude;
+			leftStickClick = state.leftStickClick;
+			rightStickClick = state.rightStickClick;
+			leftTrigger = state.leftTrigger;
+			rightTrigger = state.rightTrigger;
+			
+			a = state.a;
+			b = state.b;
+			x = state.x;
+			y = state.y;
+			lb = state.lb;
+			rb = state.rb;
+			start = state.start;
+			back = state.back;
+			guide = state.guide;
+			dpadUp = state.dpadUp;
+			dpadDown = state.dpadDown;
+			dpadLeft = state.dpadLeft;
+			dpadRight = state.dpadRight;
+		}
 	}
 	
 	public ControllerStateWrapper(ControllerStateWrapper state) {
-		jamePadState = state.jamePadState;
 		isConnected = state.isConnected;
 		controllerType = state.controllerType;
 		leftStickX = state.leftStickX;
@@ -302,9 +288,9 @@ public class ControllerStateWrapper {
 		rightStickAngle = state.rightStickAngle;
 		rightStickMagnitude = state.rightStickMagnitude;
 		leftStickClick = state.leftStickClick;
-		leftStickJustClicked = state.leftStickJustClicked; //
+		leftStickJustClicked = state.leftStickJustClicked;
 		rightStickClick = state.rightStickClick;
-		rightStickJustClicked = state.rightStickJustClicked; //
+		rightStickJustClicked = state.rightStickJustClicked;
 		
 		leftTrigger = state.leftTrigger;
 		leftTriggerJustReachedThreshold = state.leftTriggerJustReachedThreshold;
@@ -314,7 +300,7 @@ public class ControllerStateWrapper {
 		rightTriggerJustStoppedInputting = state.rightTriggerJustStoppedInputting;
 		
 		a = state.a;
-		aJustPressed = state.aJustPressed; //
+		aJustPressed = state.aJustPressed;
 		b = state.b;
 		bJustPressed = state.bJustPressed;
 		x = state.x;
@@ -341,133 +327,5 @@ public class ControllerStateWrapper {
 		dpadRightJustPressed = state.dpadRightJustPressed;
 	}
 	
-	public ControllerState getJamepadState() {
-		return jamePadState;
-	}
-	
 	private ControllerStateWrapper() {}
-	
-	public static enum Button{
-		A(0),
-		B(1),
-		X(2),
-		Y(3),
-		LB(4),
-		RB(5),
-		START(6),
-		BACK(7),
-		GUIDE(8),
-		D_PAD_UP(9),
-		D_PAD_DOWN(10),
-		D_PAD_LEFT(11),
-		D_PAD_RIGHT(12),
-		LEFT_STICK_BUTTON(13),
-		RIGHT_STICK_BUTTON(14),
-		
-		LT(15),
-		RT(16);
-		
-		
-		int index;
-		
-		private Button(int index) {
-			this.index = index;
-		}
-		
-		public int getIndex() {
-			return index;
-		}
-		
-		/**
-		 * 
-		 * @param index
-		 * @return the button of the specified index
-		 * @throws IndexOutOfBoundsException if there is no button with that index
-		 */
-		public static Button getButton(int index) {
-			return Button.values()[index];
-		}
-		
-		public boolean isPressed(ControllerStateWrapper controllerState) {
-			switch(this) {
-				case A:
-					return controllerState.a;
-				case B:
-					return controllerState.b;
-				case BACK:
-					return controllerState.back;
-				case D_PAD_DOWN:
-					return controllerState.dpadDown;
-				case D_PAD_LEFT:
-					return controllerState.dpadLeft;
-				case D_PAD_RIGHT:
-					return controllerState.dpadRight;
-				case D_PAD_UP:
-					return controllerState.dpadUp;
-				case GUIDE:
-					return controllerState.guide;
-				case LB:
-					return controllerState.lb;
-				case LEFT_STICK_BUTTON:
-					return controllerState.leftStickClick;
-				case RB:
-					return controllerState.rb;
-				case RIGHT_STICK_BUTTON:
-					return controllerState.rightStickClick;
-				case START:
-					return controllerState.start;
-				case X:
-					return controllerState.x;
-				case Y:
-					return controllerState.y;
-				case LT:
-					return controllerState.leftTrigger > 0.5;
-				case RT:
-					return controllerState.rightTrigger > 0.5;
-				default:
-					throw new AssertionError();
-			}
-		}
-		
-		public boolean justPressed(ControllerStateWrapper controllerState) {
-			switch(this) {
-				case A:
-					return controllerState.aJustPressed;
-				case B:
-					return controllerState.bJustPressed;
-				case BACK:
-					return controllerState.backJustPressed;
-				case D_PAD_DOWN:
-					return controllerState.dpadDownJustPressed;
-				case D_PAD_LEFT:
-					return controllerState.dpadLeftJustPressed;
-				case D_PAD_RIGHT:
-					return controllerState.dpadRightJustPressed;
-				case D_PAD_UP:
-					return controllerState.dpadUpJustPressed;
-				case GUIDE:
-					return controllerState.guideJustPressed;
-				case LB:
-					return controllerState.lbJustPressed;
-				case LEFT_STICK_BUTTON:
-					return controllerState.leftStickJustClicked;
-				case RB:
-					return controllerState.rbJustPressed;
-				case RIGHT_STICK_BUTTON:
-					return controllerState.rightStickJustClicked;
-				case START:
-					return controllerState.startJustPressed;
-				case X:
-					return controllerState.xJustPressed;
-				case Y:
-					return controllerState.yJustPressed;
-				case LT:
-					return controllerState.leftTriggerJustReachedThreshold;
-				case RT:
-					return controllerState.rightTriggerJustReachedThreshold;
-				default:
-					throw new AssertionError();
-			}
-		}
-	}
 }

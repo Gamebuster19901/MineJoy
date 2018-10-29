@@ -17,7 +17,7 @@ public enum DamageHandler {
 					milliseconds = 3000;
 				}
 				if(ControllerHandler.INSTANCE.canSendControllerEvents()) {
-					ControllerHandler.INSTANCE.vibrate(ControllerHandler.INSTANCE.getActiveControllerIndex().getIndex(), 1f, 1f, milliseconds);
+					ControllerHandler.INSTANCE.vibrate(ControllerHandler.INSTANCE.getActiveControllerIndex(), 1f, milliseconds);
 				}
 			}
 		}

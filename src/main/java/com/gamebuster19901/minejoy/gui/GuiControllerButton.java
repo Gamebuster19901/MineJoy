@@ -16,7 +16,7 @@ public class GuiControllerButton extends GuiButtonExt{
 	
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		boolean active = controller == (ControllerHandler.INSTANCE.getActiveController());
+		boolean active = controller == (ControllerHandler.INSTANCE.getActiveControllerIndex());
 		boolean enabled = ControllerHandler.INSTANCE.getControllerState(controller).isConnected;
 		if(!active && enabled) {
 			this.displayString = defaultTextString;

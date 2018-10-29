@@ -1,15 +1,15 @@
 package com.gamebuster19901.minejoy.controller;
 
+import java.io.IOError;
 import java.util.ArrayList;
 
 import org.apache.logging.log4j.Level;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Controller;
+import org.lwjgl.input.Controllers;
 
 import com.gamebuster19901.minejoy.Minejoy;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
-import com.studiohartman.jamepad.ControllerIndex;
-import com.studiohartman.jamepad.ControllerManager;
-import com.studiohartman.jamepad.ControllerState;
-import com.studiohartman.jamepad.ControllerUnpluggedException;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 public enum ControllerHandler {
 	INSTANCE;
+	
+	Controller controller;
 	
 	private boolean previouslyInitialized = false;
 	
@@ -37,7 +39,7 @@ public enum ControllerHandler {
 						}
 						ControllerStateWrapper state = getActiveControllerState();
 						
-						MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Pre(activeController, state, getActiveControllerIndex()));
+						MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Pre(activeController, state));
 						
 						state.leftStickJustClicked = !lastNoGLState.leftStickClick && state.leftStickClick;
 						state.rightStickJustClicked = !lastNoGLState.rightStickClick &&  state.rightStickClick;
@@ -62,13 +64,14 @@ public enum ControllerHandler {
 						
 						lastNoGLState = state;
 						
-						MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Post(activeController, state, getActiveControllerIndex()));
+						MinecraftForge.EVENT_BUS.post(new ControllerEventNoGL.Post(activeController, state));
 					}
 				}
 			}
 			catch(Exception e) {
 				RuntimeException ex = new RuntimeException(e);
 				if(Minejoy.isEnabled()) {
+					Minejoy.setAvailibility(false);
 					throw ex;
 				}
 				else {
@@ -84,7 +87,7 @@ public enum ControllerHandler {
 		if(canSendControllerEvents()) {
 			ControllerStateWrapper state = getActiveControllerState();
 			
-			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state, getActiveControllerIndex()));
+			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Pre(activeController, state));
 			
 			state.leftStickJustClicked = !lastGLState.leftStickClick && state.leftStickClick;
 			state.rightStickJustClicked = !lastGLState.rightStickClick &&  state.rightStickClick;
@@ -109,18 +112,22 @@ public enum ControllerHandler {
 			
 			lastGLState = state;
 			
-			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Post(activeController, state, getActiveControllerIndex()));
+			MinecraftForge.EVENT_BUS.post(new ControllerEvent.Post(activeController, state));
 		}
 	}
 	
-	private ControllerManager controllerManager;
+	private ControllerManager controllerManager = ControllerManager.INSTANCE;
 	private volatile ControllerStateWrapper lastNoGLState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
 	private ControllerStateWrapper lastGLState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
 	private int activeController = 0;
 	
 	public void init(){
-		controllerManager = new ControllerManager();
-		controllerManager.initSDLGamepad();
+		try {
+			Controllers.create();
+		}
+		catch(LWJGLException e) {
+			throw new IOError(e);
+		}
 		if(!previouslyInitialized) {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
@@ -129,8 +136,9 @@ public enum ControllerHandler {
 					if(CONTROLLER_THREAD.isAlive()) {
 						Minejoy.setAvailibility(false);
 						while(CONTROLLER_THREAD.isAlive());
+						
 					}
-					ControllerHandler.this.controllerManager.quitSDLGamepad();
+					Controllers.destroy();
 				}
 			});
 			previouslyInitialized = true;
@@ -141,20 +149,20 @@ public enum ControllerHandler {
 		}
 		CONTROLLER_THREAD.setDaemon(true);
 		CONTROLLER_THREAD.start();
-		vibrate(activeController, 1f, 1f, 1500);
+		vibrate(activeController, 1f, 1500);
 	}
 	
 	public void disable() {
-		Minejoy.LOGGER.log(Level.INFO, "Minejoy disabled, shutting down Minejoy and Jamepad!");
+		Minejoy.LOGGER.log(Level.INFO, "Minejoy disabled, shutting down Minejoy");
 		if(CONTROLLER_THREAD.isAlive()) {
 			Minejoy.setAvailibility(false);
 			while(CONTROLLER_THREAD.isAlive());
 		}
-		ControllerHandler.this.controllerManager.quitSDLGamepad();
+		Controllers.destroy();
 	}
 	
-	public ControllerIndex getActiveControllerIndex(){
-		return controllerManager.getControllerIndex(activeController);
+	public Controller getActiveController(){
+		return Controllers.getController(activeController);
 	}
 	
 	public synchronized ControllerStateWrapper getActiveControllerState() {
@@ -162,13 +170,13 @@ public enum ControllerHandler {
 	}
 	
 	public synchronized Layout.LayoutWrapper getModifiedActiveContorllerState() {
-		if(controllerManager.getState(activeController).isConnected) {
+		if(isActiveControllerPluggedIn()) {
 			return Layout.getLayout().getWrapper(getActiveControllerState());
 		}
 		return Layout.getLayout().getWrapper(ControllerStateWrapper.DISCONNECTED_CONTROLLER);
 	}
 	
-	public int getActiveController() {
+	public int getActiveControllerIndex() {
 		return activeController;
 	}
 	
@@ -220,16 +228,16 @@ public enum ControllerHandler {
 		return Layout.getLayout().getWrapper(lastGLState);
 	}
 	
-	public ControllerIndex getControllerIndex(int index){
-		return controllerManager.getControllerIndex(index);
+	public Controller getControllerFromIndex(int index){
+		return Controllers.getController(index);
 	}
 	
 	public boolean isControllerIndexPluggedIn(int index) {
-		return getControllerIndex(index).isConnected();
+		return getControllerFromIndex(index) != null;
 	}
 	
 	public boolean isActiveControllerPluggedIn() {
-		return getControllerIndex(getActiveControllerIndex().getIndex()).isConnected();
+		return isControllerIndexPluggedIn(activeController);
 	}
 	
 	public ArrayList<ControllerState> getAllControllerStates(){
@@ -242,45 +250,37 @@ public enum ControllerHandler {
 	}
 	
 	public String getControllerName(int index) {
-		try {
-			return controllerManager.getControllerIndex(index).getName();
-		} catch (ControllerUnpluggedException e) {
-			return "Unplugged controller";
+		if(isControllerIndexPluggedIn(index)) {
+			return getControllerFromIndex(index).getName();
+		}
+		return ControllerStateWrapper.DISCONNECTED_CONTROLLER.controllerType;
+	}
+	
+	public void vibrate(int index, float magnetude, int milliseconds){
+		Controller controller = Controllers.getController(index);
+		for(int i = 0; i < controller.getRumblerCount(); i++) {
+			Thread t = new Thread() {
+				public void run() {
+					int ms = milliseconds;
+					if(canSendControllerEvents()) {
+						while(ms > 0 && canSendControllerEvents()) {
+							ms--;
+						}
+					}
+				}
+			};
+			t.setName(controller.getName() + ": " + controller.getRumblerName(i));
+			t.setDaemon(true);
+			t.start();
 		}
 	}
 	
-	public void vibrate(int index, float leftMagnatude, float rightMagnatude, int milliseconds){
-		new Thread() {
-			public void run() {
-				int ms = milliseconds;
-				ControllerIndex unsafe = controllerManager.getControllerIndex(index);
-				if(leftMagnatude == 0 && rightMagnatude == 0) {
-					if(unsafe.isVibrating() || unsafe.isConnected()) {
-						unsafe.stopVibration();
-					}
-				}
-				else {
-					try {
-						unsafe.startVibration(leftMagnatude, rightMagnatude);
-					} catch (ControllerUnpluggedException e1) {} //while loop will fail because unsafe.isVibrating() will be false, we should swallow
-					while(ms > 0 && unsafe.isVibrating()) {
-						try {
-							Thread.sleep(1);
-							ms--;
-						} catch (InterruptedException e) {
-							unsafe.stopVibration();
-							break;
-						}
-					}
-					unsafe.stopVibration();
-				}
-			}
-		}.start();
-
+	public void stopVibrating(int index) {
+		vibrate(index, 0f, 1);
 	}
 	
 	public boolean canSendControllerEvents() {
-		return Minejoy.isEnabled() && getActiveControllerIndex().isConnected() && ControllerMouse.INSTANCE.isMouseWithinBounds();
+		return Minejoy.isEnabled() && isActiveControllerPluggedIn() && ControllerMouse.INSTANCE.isMouseWithinBounds();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {

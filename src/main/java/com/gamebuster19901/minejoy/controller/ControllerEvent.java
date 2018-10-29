@@ -1,9 +1,8 @@
 package com.gamebuster19901.minejoy.controller;
 
 import com.gamebuster19901.minejoy.controller.layout.Layout;
-import com.studiohartman.jamepad.ControllerIndex;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * This event is safe for rendering, but is only called once per tick.
@@ -15,20 +14,14 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public abstract class ControllerEvent extends Event{
 	private int index;
 	private ControllerStateWrapper state;
-	private ControllerIndex unsafe;
 	
-	public ControllerEvent(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
+	public ControllerEvent(int index, ControllerStateWrapper state) {
 		this.index = index;
 		this.state = state;
-		this.unsafe = unsafe;
 	}
 	
 	public int getControllerIndex() {
 		return index;
-	}
-	
-	public ControllerIndex getUnsafeController() {
-		return unsafe;
 	}
 	
 	public ControllerStateWrapper getControllerState() {
@@ -45,16 +38,16 @@ public abstract class ControllerEvent extends Event{
 	@Deprecated
 	public static class Pre extends ControllerEvent{
 
-		public Pre(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
-			super(index, state, unsafe);
+		public Pre(int index, ControllerStateWrapper state) {
+			super(index, state);
 		}
 		
 	}
 	
 	public static class Post extends ControllerEvent{
 
-		public Post(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
-			super(index, state, unsafe);
+		public Post(int index, ControllerStateWrapper state) {
+			super(index, state);
 		}
 		
 	}

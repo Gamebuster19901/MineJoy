@@ -7,13 +7,6 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
-allprojects {
-    repositories {
-        mavenLocal()
-        jcenter()
-        maven { url "https://jitpack.io" }
-    }
-}
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -62,8 +55,6 @@ dependencies {
     // for more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
-    compile 'com.github.williamahartman:Jamepad:1.2'
 }
 
 processResources {
