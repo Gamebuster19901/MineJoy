@@ -3,6 +3,7 @@ package com.gamebuster19901.minejoy.controller;
 import java.util.ArrayList;
 
 import org.apache.logging.log4j.Level;
+import org.lwjgl.opengl.Display;
 
 import com.gamebuster19901.minejoy.Minejoy;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
@@ -249,8 +250,8 @@ public enum ControllerHandler {
 		}
 	}
 	
-	public void vibrate(int index, float leftMagnatude, float rightMagnatude, int milliseconds){
-		new Thread() {
+	public Thread vibrate(int index, float leftMagnatude, float rightMagnatude, int milliseconds){
+		Thread t = new Thread() {
 			public void run() {
 				int ms = milliseconds;
 				ControllerIndex unsafe = controllerManager.getControllerIndex(index);
@@ -275,12 +276,15 @@ public enum ControllerHandler {
 					unsafe.stopVibration();
 				}
 			}
-		}.start();
-
+		};
+		t.setName("Controller Vibration Thread");
+		t.setDaemon(true);
+		t.start();
+		return t;
 	}
 	
 	public boolean canSendControllerEvents() {
-		return Minejoy.isEnabled() && getActiveControllerIndex().isConnected() && ControllerMouse.INSTANCE.isMouseWithinBounds();
+		return Minejoy.isEnabled() && Display.isCreated() && Display.isActive() && getActiveControllerIndex().isConnected() && ControllerMouse.INSTANCE.isMouseWithinBounds();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {
