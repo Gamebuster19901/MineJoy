@@ -1,18 +1,113 @@
 options.mouse=Mouse Options
 options.sensitivity=Mouse Sensitivity
 
-options.joy=Gamepad Options
+options.joy=Controller Options
 options.joyselect=Select Controller
-options.leftstick=Left Stick
-options.rightstick=Right Stick
+
 options.looksensitivity=Look Sensitivity
+
 options.inverty=Invert Y Axis
 options.invertx=Invert X Axis
 options.invertz=Invert Z Axis
+
 options.cursorsensitivity=Cursor Sensitivity
 options.doubletap=Easy Sprint
 options.deadzone=Deadzone Size
 options.rumble=Rumble Intensity
 
+options.layout=Layouts
+options.layout.custom=Custom Layout
+options.layout.default=Default
+options.layout.legacy=Legacy
+options.layout.legacysouthpaw=Legacy Southpaw
+options.layout.southpaw=Southpaw
+
 options.norumble=Your controller does not support rumble
 options.nojoystick=Your controller does not have a joystick
+
+options.console.xbox=Xbox
+options.console.playstation=Playstation
+
+#TRANSLATORS: DO NOT EDIT BELOW THIS LINE
+
+#E000
+#E001
+#E002
+#E003
+options.playstation.a=
+options.playstation.b=
+options.playstation.y=
+options.playstation.x=
+
+#E004
+#E005
+#E006
+#E007
+#E008
+options.playstation.dpad.none=
+options.playstation.dpad.down=
+options.playstation.dpad.right=
+options.playstation.dpad.up=
+options.playstation.dpad.left=
+
+#E009
+#E00A
+options.playstation.back=
+options.playstation.start=
+
+#E00B
+#E00C
+options.playstation.lb=
+options.playstation.lt=
+
+#E00D
+options.playstation.l=
+
+#E00D
+#E00F
+options.playstation.rb=
+options.playstation.rt=
+
+#E010
+options.playstation.r=
+
+#E020
+#E021
+#E022
+#E023
+options.xbox.a=
+options.xbox.b=
+options.xbox.y=
+options.xbox.x=
+
+#E024
+#E025
+#E026
+#E027
+#E028
+options.xbox.dpad.none=
+options.xbox.dpad.down=
+options.xbox.dpad.right=
+options.xbox.dpad.up=
+options.xbox.dpad.left=
+
+#E029
+#E02A
+options.xbox.back=
+options.xbox.start=
+
+#E02B
+#E02C
+options.xbox.lb=
+options.xbox.lt=
+
+#E02D
+options.xbox.l=
+
+#E02E
+#E02F
+options.xbox.rb=
+options.xbox.rt=
+
+#E030
+options.xbox.r=

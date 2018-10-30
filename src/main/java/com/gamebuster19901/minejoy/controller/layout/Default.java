@@ -27,7 +27,7 @@ public final class Default extends Layout {
 
 		@Override
 		public String getName() {
-			return I18n.format("minejoy.layout.default");
+			return I18n.format("options.layout.default");
 		}
 		
 	}
