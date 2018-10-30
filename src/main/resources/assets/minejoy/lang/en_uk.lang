@@ -15,7 +15,3 @@ options.rumble=Rumble Intensity
 
 options.norumble=Your controller does not support rumble
 options.nojoystick=Your controller does not have a joystick
-
-minejoy.gui.incompatiblemodsdetected.acknowledge=I understand
-minejoy.gui.incompatiblemodsdetected.description=Minejoy has detected some incompatibilities with the mods that loaded the following classes:
-minejoy.gui.incompatiblemodsdetected.warning=You may proceed, but minejoy will probably stop the mod from working properly, or vice versa. Additional warnings may appear if there are other incompatible classes loaded.
