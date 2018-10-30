@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Level;
 
 import com.gamebuster19901.minejoy.Minejoy;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
-
 import com.studiohartman.jamepad.ControllerIndex;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
@@ -261,15 +260,16 @@ public enum ControllerHandler {
 					}
 				}
 				else {
-					if(unsafe.isConnected()) {
-						while(ms > 0 && unsafe.isVibrating()) {
-							try {
-								Thread.sleep(1);
-								ms--;
-							} catch (InterruptedException e) {
-								unsafe.stopVibration();
-								break;
-							}
+					try {
+						unsafe.startVibration(leftMagnatude, rightMagnatude);
+					} catch (ControllerUnpluggedException e1) {} //while loop will fail because unsafe.isVibrating() will be false, we should swallow
+					while(ms > 0 && unsafe.isVibrating()) {
+						try {
+							Thread.sleep(1);
+							ms--;
+						} catch (InterruptedException e) {
+							unsafe.stopVibration();
+							break;
 						}
 					}
 					unsafe.stopVibration();
