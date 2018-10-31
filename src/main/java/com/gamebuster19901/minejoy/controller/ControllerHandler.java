@@ -20,10 +20,10 @@ public enum ControllerHandler {
 	INSTANCE;
 	
 	private boolean previouslyInitialized = false;
+	private boolean gameHasFocus = false;
 	
 	private final Thread CONTROLLER_THREAD = new Thread() {
 		public void run() {
-			Thread.currentThread().setName("Minejoy Controller Thread");
 			try {
 				while(Minejoy.isEnabled()) {
 					if(canSendControllerEvents()) {
@@ -80,6 +80,14 @@ public enum ControllerHandler {
 		}
 	};
 	
+	private final Thread ACTIVE_WINDOW_CHECKER = new Thread() {
+		public void run() {
+			while(Minejoy.isEnabled()) {
+				gameHasFocus = Display.isActive();
+			}
+		}
+	};
+	
 	@SubscribeEvent
 	public final void everyTick(ClientTickEvent e) {
 		if(canSendControllerEvents()) {
@@ -130,6 +138,7 @@ public enum ControllerHandler {
 					if(CONTROLLER_THREAD.isAlive()) {
 						Minejoy.setAvailibility(false);
 						while(CONTROLLER_THREAD.isAlive());
+						while(ACTIVE_WINDOW_CHECKER.isAlive());
 					}
 					ControllerHandler.this.controllerManager.quitSDLGamepad();
 				}
@@ -140,8 +149,13 @@ public enum ControllerHandler {
 		if(isControllerIndexPluggedIn(index)) {
 			activeController = index;
 		}
+		CONTROLLER_THREAD.setName("Minejoy ControllerEventNoGL Thread");
+		ACTIVE_WINDOW_CHECKER.setName("Minejoy Active Display Checker");
 		CONTROLLER_THREAD.setDaemon(true);
+		ACTIVE_WINDOW_CHECKER.setDaemon(true);
+		ACTIVE_WINDOW_CHECKER.setPriority(1);
 		CONTROLLER_THREAD.start();
+		ACTIVE_WINDOW_CHECKER.start();
 		vibrate(activeController, 1f, 1f, 1500);
 	}
 	
@@ -284,7 +298,7 @@ public enum ControllerHandler {
 	}
 	
 	public boolean canSendControllerEvents() {
-		return Minejoy.isEnabled() && Display.isCreated() && Display.isActive() && getActiveControllerIndex().isConnected() && ControllerMouse.INSTANCE.isMouseWithinBounds();
+		return gameHasFocus && Minejoy.isEnabled() && getActiveControllerIndex().isConnected() && ControllerMouse.INSTANCE.isMouseWithinBounds();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {

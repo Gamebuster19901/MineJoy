@@ -397,6 +397,7 @@ public enum ControllerMouse{
 	}
 	
 	public boolean isMouseWithinBounds() {
+		
 		Point mouse = MouseInfo.getPointerInfo().getLocation();
 		
 		int top = TOP;
