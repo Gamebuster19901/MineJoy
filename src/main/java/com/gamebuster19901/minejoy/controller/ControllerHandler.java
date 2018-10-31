@@ -83,7 +83,7 @@ public enum ControllerHandler {
 	private final Thread ACTIVE_WINDOW_CHECKER = new Thread() {
 		public void run() {
 			while(Minejoy.isEnabled()) {
-				gameHasFocus = Display.isActive();
+				gameHasFocus = Display.isCreated() && Display.isActive();
 			}
 		}
 	};
