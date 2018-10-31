@@ -11,8 +11,8 @@ public enum DamageHandler {
 	public void onPlayerDamage(LivingHurtEvent e) {
 		if(e.getEntity().equals(Minecraft.getMinecraft().player)) {
 			if(e.getAmount() >= 1) {
-				int milliseconds = (int) (e.getAmount() * 250);
-				float intensity = (e.getAmount() / 20) * 5;
+				int milliseconds = (int) (e.getAmount() * 200);
+				float intensity = (e.getAmount() / 20) * 2.5f;
 				
 				if(milliseconds > 3000) {
 					milliseconds = 3000;
