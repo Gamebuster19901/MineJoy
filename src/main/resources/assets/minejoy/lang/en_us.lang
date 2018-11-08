@@ -1,5 +1,4 @@
 options.mouse=Mouse Options
-options.sensitivity=Mouse Sensitivity
 
 options.joy=Controller Options
 options.joyselect=Select Controller
@@ -34,80 +33,80 @@ options.console.playstation=Playstation
 #E001
 #E002
 #E003
-options.playstation.a=
-options.playstation.b=
-options.playstation.y=
-options.playstation.x=
+options.playstation.0=
+options.playstation.1=
+options.playstation.2=
+options.playstation.3=
 
 #E004
 #E005
 #E006
 #E007
 #E008
-options.playstation.dpad.none=
-options.playstation.dpad.down=
-options.playstation.dpad.right=
-options.playstation.dpad.up=
-options.playstation.dpad.left=
+options.playstation.dpad.4=
+options.playstation.dpad.5=
+options.playstation.dpad.6=
+options.playstation.dpad.7=
+options.playstation.dpad.8=
 
 #E009
 #E00A
-options.playstation.back=
-options.playstation.start=
+options.playstation.9=
+options.playstation.10=
 
 #E00B
 #E00C
-options.playstation.lb=
-options.playstation.lt=
+options.playstation.11=
+options.playstation.12=
 
 #E00D
-options.playstation.l=
+options.playstation.13=
 
 #E00D
 #E00F
-options.playstation.rb=
-options.playstation.rt=
+options.playstation.14=
+options.playstation.15=
 
 #E010
-options.playstation.r=
+options.playstation.16=
 
 #E020
 #E021
 #E022
 #E023
-options.xbox.a=
-options.xbox.b=
-options.xbox.y=
-options.xbox.x=
+options.xbox.0=
+options.xbox.1=
+options.xbox.2=
+options.xbox.3=
 
 #E024
 #E025
 #E026
 #E027
 #E028
-options.xbox.dpad.none=
-options.xbox.dpad.down=
-options.xbox.dpad.right=
-options.xbox.dpad.up=
-options.xbox.dpad.left=
+options.xbox.dpad.4=
+options.xbox.dpad.5=
+options.xbox.dpad.6=
+options.xbox.dpad.7=
+options.xbox.dpad.8=
 
 #E029
 #E02A
-options.xbox.back=
-options.xbox.start=
+options.xbox.9=
+options.xbox.10=
 
 #E02B
 #E02C
-options.xbox.lb=
-options.xbox.lt=
+options.xbox.11=
+options.xbox.12=
 
 #E02D
-options.xbox.l=
+options.xbox.13=
 
 #E02E
 #E02F
-options.xbox.rb=
-options.xbox.rt=
+options.xbox.14=
+options.xbox.15=
 
 #E030
-options.xbox.r=
+options.xbox.16=

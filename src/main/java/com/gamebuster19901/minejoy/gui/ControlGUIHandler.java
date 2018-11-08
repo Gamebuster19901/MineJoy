@@ -30,7 +30,7 @@ public enum ControlGUIHandler {
 	
 	@SubscribeEvent
 	public void onControlsPress(ActionPerformedEvent.Pre e) {
-		if(e.getButton().displayString.equals(I18n.format("options.joy"))) {
+		if(e.getButton().displayString.equals(I18n.format("options.controller"))) {
 			e.setCanceled(true);
 			e.getButton().playPressSound(Minecraft.getMinecraft().getSoundHandler());
 			Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(Minecraft.getMinecraft().currentScreen, I18n.format("options.choosejoy")));

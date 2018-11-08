@@ -1,5 +1,6 @@
 package com.gamebuster19901.minejoy.gui;
 
+import com.gamebuster19901.minejoy.config.MineJoyConfig;
 import com.gamebuster19901.minejoy.controller.ControllerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextFormatting;
@@ -7,7 +8,7 @@ import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiControllerButton extends GuiButtonExt{
 	private int controller;
-	private String defaultTextString = this.displayString;
+	private String defaultTextString = Console.getConsole(MineJoyConfig.controllerType).getButton(id);
 	
 	public GuiControllerButton(int id, int index) {
 		super(id, 0, 0, 260, 20, ControllerHandler.INSTANCE.getControllerName(index) + " (" + index + ")");
