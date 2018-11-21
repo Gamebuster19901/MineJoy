@@ -264,37 +264,13 @@ public enum ControllerHandler {
 		}
 	}
 	
-	public Thread vibrate(int index, float leftMagnatude, float rightMagnatude, int milliseconds){
-		Thread t = new Thread() {
-			public void run() {
-				int ms = milliseconds;
-				ControllerIndex unsafe = controllerManager.getControllerIndex(index);
-				if(leftMagnatude == 0 && rightMagnatude == 0) {
-					if(unsafe.isVibrating() || unsafe.isConnected()) {
-						unsafe.stopVibration();
-					}
-				}
-				else {
-					try {
-						unsafe.startVibration(leftMagnatude, rightMagnatude);
-					} catch (ControllerUnpluggedException e1) {} //while loop will fail because unsafe.isVibrating() will be false, we should swallow
-					while(ms > 0 && unsafe.isVibrating()) {
-						try {
-							Thread.sleep(1);
-							ms--;
-						} catch (InterruptedException e) {
-							unsafe.stopVibration();
-							break;
-						}
-					}
-					unsafe.stopVibration();
-				}
-			}
-		};
-		t.setName("Controller Vibration Thread");
-		t.setDaemon(true);
-		t.start();
-		return t;
+	public void vibrate(int index, float leftMagnitude, float rightMagnitude, int milliseconds){
+		ControllerIndex controller = controllerManager.getControllerIndex(index);
+		try {
+			controller.doVibration(leftMagnitude, rightMagnitude, milliseconds);
+		} catch (ControllerUnpluggedException e) {
+			Minejoy.LOGGER.log(Level.WARN, "Controller" + index + " was unplugged while vibrating");
+		}
 	}
 	
 	public boolean canSendControllerEvents() {
