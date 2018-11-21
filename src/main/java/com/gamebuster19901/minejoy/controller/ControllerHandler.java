@@ -269,7 +269,7 @@ public enum ControllerHandler {
 		try {
 			controller.doVibration(leftMagnitude, rightMagnitude, milliseconds);
 		} catch (ControllerUnpluggedException e) {
-			Minejoy.LOGGER.log(Level.WARN, "Controller" + index + " was unplugged while vibrating");
+			Minejoy.LOGGER.log(Level.WARN, "Controller " + index + " was unplugged while vibrating");
 		}
 	}
 	
