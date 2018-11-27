@@ -274,7 +274,7 @@ public enum ControllerHandler {
 	}
 	
 	public boolean canSendControllerEvents() {
-		return gameHasFocus && Minejoy.isEnabled() && getActiveControllerIndex().isConnected() && ControllerMouse.INSTANCE.isMouseWithinBounds();
+		return Minejoy.isEnabled() && controllerManager.getNumControllers() > 0 && isActiveControllerPluggedIn() && ControllerMouse.INSTANCE.isMouseWithinBounds();
 	}
 
 	public ControllerStateWrapper getControllerState(int controller) {
