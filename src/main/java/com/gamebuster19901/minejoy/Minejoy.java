@@ -20,9 +20,6 @@ import com.gamebuster19901.minejoy.controller.ControllerMouse;
 import com.gamebuster19901.minejoy.controller.DamageHandler;
 import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.GameSettings;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
@@ -50,8 +47,6 @@ public class Minejoy {
 		if(e.getSide() == Side.SERVER) {
 			throw new HeadlessException("Remove MineJoy from the server, it is for clients only");
 		}
-		
-		GameSettings settings = Minecraft.getMinecraft().gameSettings;
 		
 		CONFIG = new Configuration(e.getSuggestedConfigurationFile());
 		ControllerHandler.INSTANCE.init();

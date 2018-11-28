@@ -22,7 +22,7 @@ public enum ControlGUIHandler {
 				}
 				else if (b.displayString.contains(I18n.format("options.invertMouse"))) {
 					e.getButtonList().remove(i);
-					e.getButtonList().add(i, new GuiButton(i, e.getGui().width / 2 - 155 + i % 2 * 160, 18 + 24 * (i - 2), 150, 20, I18n.format("options.joy")));
+					e.getButtonList().add(i, new GuiButton(i, e.getGui().width / 2 - 155 + i % 2 * 160, 18 + 24 * (i - 2), 150, 20, I18n.format("options.controller")));
 				}
 			}
 		}
@@ -30,10 +30,10 @@ public enum ControlGUIHandler {
 	
 	@SubscribeEvent
 	public void onControlsPress(ActionPerformedEvent.Pre e) {
-		if(e.getButton().displayString.equals(I18n.format("options.controller"))) {
+		if(e.getButton().displayString.contains((I18n.format("options.controller")))) {
 			e.setCanceled(true);
 			e.getButton().playPressSound(Minecraft.getMinecraft().getSoundHandler());
-			Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(Minecraft.getMinecraft().currentScreen, I18n.format("options.choosejoy")));
+			Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(Minecraft.getMinecraft().currentScreen, I18n.format("options.layout")));
 		}
 		else if (e.getButton().displayString.equals(I18n.format("options.mouse"))) {
 			e.setCanceled(true);
