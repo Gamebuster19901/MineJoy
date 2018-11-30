@@ -10,7 +10,6 @@ import com.gamebuster19901.minejoy.gui.Console;
 import com.gamebuster19901.minejoy.gui.GuiControllerOptions;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.client.GuiModList;
@@ -65,7 +64,7 @@ public class MineJoyConfig{
 					if(reflection.getModId.invoke((ModContainer)reflection.selectedMod.get(e.getGui())).equals(MODID)) {
 						e.setCanceled(true);
 						e.getButton().playPressSound(Minecraft.getMinecraft().getSoundHandler());
-						Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(e.getGui(), I18n.format("options.choosejoy")));
+						Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(e.getGui()));
 					}
 				}
 			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e1) {

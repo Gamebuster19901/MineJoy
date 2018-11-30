@@ -48,7 +48,7 @@ public class SouthPaw extends Layout{
 
 		@Override
 		public String getName() {
-			return I18n.format("minejoy.layout.southpaw");
+			return I18n.format("options.minejoy.layout.southpaw");
 		}
 		
 	}

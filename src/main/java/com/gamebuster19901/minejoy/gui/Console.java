@@ -96,6 +96,6 @@ public final class Console {
 	}
 
 	public String getButton(int id) {
-		return I18n.format("options." + this + "." + id);
+		return I18n.format("options.minejoy." + this + "." + id);
 	}
 }

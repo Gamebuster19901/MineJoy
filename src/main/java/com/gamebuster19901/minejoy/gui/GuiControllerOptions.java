@@ -13,6 +13,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiControllerOptions extends GuiScreen{
+	private String title = I18n.format("options.minejoy.layout");
 	private int scroll = 0;
 	private String title;
 	private GuiScreen parent;

@@ -16,13 +16,13 @@ public enum ControlGUIHandler {
 		if(e.getGui() instanceof GuiControls) {
 			for(int i = e.getButtonList().size() - 1; i > 0; i--) {
 				GuiButton b = e.getButtonList().get(i);
-				if(b.displayString.contains(I18n.format("options.sensitivity"))) {
+				if(b.displayString.contains(I18n.format("options.minejoy.sensitivity"))) {
 					e.getButtonList().remove(i);
-					e.getButtonList().add(i, new GuiButton(i, e.getGui().width / 2 - 155 + i % 2 * 160, 18 + 24 * (i - 3), 150, 20, I18n.format("options.mouse")));
+					e.getButtonList().add(i, new GuiButton(i, e.getGui().width / 2 - 155 + i % 2 * 160, 18 + 24 * (i - 3), 150, 20, I18n.format("options.minejoy.mouse")));
 				}
-				else if (b.displayString.contains(I18n.format("options.invertMouse"))) {
+				else if (b.displayString.contains(I18n.format("options.minejoy.invertMouse"))) {
 					e.getButtonList().remove(i);
-					e.getButtonList().add(i, new GuiButton(i, e.getGui().width / 2 - 155 + i % 2 * 160, 18 + 24 * (i - 2), 150, 20, I18n.format("options.controller")));
+					e.getButtonList().add(i, new GuiButton(i, e.getGui().width / 2 - 155 + i % 2 * 160, 18 + 24 * (i - 2), 150, 20, I18n.format("options.minejoy.controller")));
 				}
 			}
 		}
@@ -30,12 +30,12 @@ public enum ControlGUIHandler {
 	
 	@SubscribeEvent
 	public void onControlsPress(ActionPerformedEvent.Pre e) {
-		if(e.getButton().displayString.contains((I18n.format("options.controller")))) {
+		if(e.getButton().displayString.contains((I18n.format("options.minejoy.controller")))) {
 			e.setCanceled(true);
 			e.getButton().playPressSound(Minecraft.getMinecraft().getSoundHandler());
-			Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(Minecraft.getMinecraft().currentScreen, I18n.format("options.layout")));
+			Minecraft.getMinecraft().displayGuiScreen(new GuiControllerOptions(Minecraft.getMinecraft().currentScreen));
 		}
-		else if (e.getButton().displayString.equals(I18n.format("options.mouse"))) {
+		else if (e.getButton().displayString.equals(I18n.format("options.minejoy.mouse"))) {
 			e.setCanceled(true);
 			e.getButton().playPressSound(Minecraft.getMinecraft().getSoundHandler());
 			Minecraft.getMinecraft().displayGuiScreen(new GuiMouseOptions());

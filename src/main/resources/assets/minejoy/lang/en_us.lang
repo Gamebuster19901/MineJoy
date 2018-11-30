@@ -1,113 +1,113 @@
-options.mouse=Mouse Options
+options.minejoy.mouse=Mouse Options
 
-options.controller=Controller Options
-options.controller.list=Controller:
+options.minejoy.controller=Controller Options
+options.minejoy.controller.list=Controller:
 
+options.minejoy.looksensitivity=Look Sensitivity
 
-options.looksensitivity=Look Sensitivity
+options.minejoy.inverty=Invert Y Axis
+options.minejoy.invertx=Invert X Axis
+options.minejoy.invertz=Invert Z Axis
 
-options.inverty=Invert Y Axis
-options.invertx=Invert X Axis
-options.invertz=Invert Z Axis
+options.minejoy.cursorsensitivity=Cursor Sensitivity
+options.minejoy.doubletap=Easy Sprint
+options.minejoy.deadzone=Deadzone Size
+options.minejoy.rumble=Rumble Intensity
 
-options.cursorsensitivity=Cursor Sensitivity
-options.doubletap=Easy Sprint
-options.deadzone=Deadzone Size
-options.rumble=Rumble Intensity
+options.minejoy.layout=Controller Layouts
+options.minejoy.layout.custom=Custom Layout
+options.minejoy.layout.default=Default
+options.minejoy.layout.legacy=Legacy
+options.minejoy.layout.legacysouthpaw=Legacy Southpaw
+options.minejoy.layout.new=New Layout
+options.minejoy.layout.southpaw=Southpaw
 
-options.layout=Controller Layouts
-options.layout.custom=Custom Layout
-options.layout.default=Default
-options.layout.legacy=Legacy
-options.layout.legacysouthpaw=Legacy Southpaw
-options.layout.southpaw=Southpaw
+options.minejoy.norumble=Your controller does not support rumble
+options.minejoy.nojoystick=Your controller does not have a joystick
 
-options.norumble=Your controller does not support rumble
-options.nojoystick=Your controller does not have a joystick
+options.minejoy.console.xbox=Xbox
+options.minejoy.console.playstation=Playstation
 
-options.console.xbox=Xbox
-options.console.playstation=Playstation
-
-#TRANSLATORS: DO NOT EDIT BELOW THIS LINE
+#TRANSLATORS: DO ***NOT*** EDIT BELOW THIS LINE
 
 #E000
 #E001
 #E002
 #E003
-options.playstation.0=
-options.playstation.1=
-options.playstation.2=
-options.playstation.3=
+options.minejoy.playstation.0=
+options.minejoy.playstation.1=
+options.minejoy.playstation.2=
+options.minejoy.playstation.3=
 
 #E004
 #E005
 #E006
 #E007
 #E008
-options.playstation.dpad.4=
-options.playstation.dpad.5=
-options.playstation.dpad.6=
-options.playstation.dpad.7=
-options.playstation.dpad.8=
+options.minejoy.playstation.dpad.4=
+options.minejoy.playstation.dpad.5=
+options.minejoy.playstation.dpad.6=
+options.minejoy.playstation.dpad.7=
+options.minejoy.playstation.dpad.8=
 
 #E009
 #E00A
-options.playstation.9=
-options.playstation.10=
+options.minejoy.playstation.9=
+options.minejoy.playstation.10=
 
 #E00B
 #E00C
-options.playstation.11=
-options.playstation.12=
+options.minejoy.playstation.11=
+options.minejoy.playstation.12=
 
 #E00D
-options.playstation.13=
+options.minejoy.playstation.13=
 
 #E00D
 #E00F
-options.playstation.14=
-options.playstation.15=
+options.minejoy.playstation.14=
+options.minejoy.playstation.15=
 
 #E010
-options.playstation.16=
+options.minejoy.playstation.16=
 
 #E020
 #E021
 #E022
 #E023
-options.xbox.0=
-options.xbox.1=
-options.xbox.2=
-options.xbox.3=
+options.minejoy.xbox.0=
+options.minejoy.xbox.1=
+options.minejoy.xbox.2=
+options.minejoy.xbox.3=
 
 #E024
 #E025
 #E026
 #E027
 #E028
-options.xbox.dpad.4=
-options.xbox.dpad.5=
-options.xbox.dpad.6=
-options.xbox.dpad.7=
-options.xbox.dpad.8=
+options.minejoy.xbox.dpad.4=
+options.minejoy.xbox.dpad.5=
+options.minejoy.xbox.dpad.6=
+options.minejoy.xbox.dpad.7=
+options.minejoy.xbox.dpad.8=
 
 #E029
 #E02A
-options.xbox.9=
-options.xbox.10=
+options.minejoy.xbox.9=
+options.minejoy.xbox.10=
 
 #E02B
 #E02C
-options.xbox.11=
-options.xbox.12=
+options.minejoy.xbox.11=
+options.minejoy.xbox.12=
 
 #E02D
-options.xbox.13=
+options.minejoy.xbox.13=
 
 #E02E
 #E02F
-options.xbox.14=
-options.xbox.15=
+options.minejoy.xbox.14=
+options.minejoy.xbox.15=
 
 #E030
-options.xbox.16=
+options.minejoy.xbox.16=

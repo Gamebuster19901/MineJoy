@@ -32,7 +32,7 @@ public class Legacy extends Layout{
 		@Override
 		public String getName() {
 			// TODO Auto-generated method stub
-			return I18n.format("minejoy.layout.legacy");
+			return I18n.format("options.minejoy.layout.legacy");
 		}
 		
 	}
