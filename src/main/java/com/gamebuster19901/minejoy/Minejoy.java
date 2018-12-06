@@ -15,7 +15,6 @@ import com.gamebuster19901.minejoy.controller.MovementInputFromOptionsMinejoy;
 import com.gamebuster19901.minejoy.controller.PlacementHandler;
 import com.gamebuster19901.minejoy.controller.layout.Default;
 import com.gamebuster19901.minejoy.controller.layout.Layout;
-import com.gamebuster19901.minejoy.controller.layout.SouthPaw;
 import com.gamebuster19901.minejoy.controller.ControllerMouse;
 import com.gamebuster19901.minejoy.controller.DamageHandler;
 import com.gamebuster19901.minejoy.gui.ControlGUIHandler;
@@ -52,7 +51,6 @@ public class Minejoy {
 		ControllerHandler.INSTANCE.init();
 		
 		Layout.register(new Default());
-		Layout.register(new SouthPaw());
 		
 		MinecraftForge.EVENT_BUS.register(ControllerHandler.INSTANCE);
 		MinecraftForge.EVENT_BUS.register(ControlGUIHandler.INSTANCE);
