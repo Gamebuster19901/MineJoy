@@ -15,11 +15,13 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public abstract class ControllerEvent extends Event{
 	private int index;
 	private ControllerStateWrapper state;
+	private ControllerStateWrapper modified;
 	private ControllerIndex unsafe;
 	
 	public ControllerEvent(int index, ControllerStateWrapper state, ControllerIndex unsafe) {
 		this.index = index;
 		this.state = state;
+		this.modified = Layout.getLayout().getWrapper(state);
 		this.unsafe = unsafe;
 	}
 	
@@ -36,7 +38,7 @@ public abstract class ControllerEvent extends Event{
 	}
 	
 	public ControllerStateWrapper getModifiedControllerState() {
-		return Layout.getLayout().getWrapper(state);
+		return modified;
 	}
 	
 	/**

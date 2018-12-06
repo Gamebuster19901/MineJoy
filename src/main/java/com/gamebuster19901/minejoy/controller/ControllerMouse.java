@@ -104,6 +104,7 @@ public enum ControllerMouse{
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
+ 		ControllerStateWrapper state1 = e.getControllerState();
 		ControllerStateWrapper state = e.getModifiedControllerState();
 		
 		GuiScreen gui = mc.currentScreen;
@@ -140,9 +141,8 @@ public enum ControllerMouse{
 		
 		if(player != null && gui == null) {
 			if(state.rightStickMagnitude > 0.3) {
-				if(Math.abs(player.rotationPitch + state.rightStickY) < 90) {
-					player.rotationPitch = player.rotationPitch + state.rightStickY * state.rightStickMagnitude * 0.25f;
-				}
+				float rotationPitch = player.rotationPitch + state.rightStickY * state.rightStickMagnitude * 0.25f;
+				player.rotationPitch = MathHelper.clamp(rotationPitch, -90f, 90f);
 				player.rotationYaw = player.rotationYaw + state.rightStickX * state.rightStickMagnitude * 0.25f;
 			}
 		}
@@ -366,7 +366,7 @@ public enum ControllerMouse{
  	}
  	
  	private boolean isHoldingPlaceButton() {
- 		if(ControllerHandler.INSTANCE.getActiveControllerState().leftTrigger > 0.5) {
+ 		if(ControllerHandler.INSTANCE.getModifiedActiveContorllerState().leftTrigger > 0.5) {
  			return true;
  		}
  		

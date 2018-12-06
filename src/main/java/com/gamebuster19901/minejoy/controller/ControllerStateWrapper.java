@@ -88,12 +88,12 @@ public class ControllerStateWrapper {
     public float leftTrigger = 0;
     
     /**
-     * Whether or not the left trigger has just reached it's threshold: I.E. Just pressed beyond 50%
+     * Whether or not the left trigger has just reached it's threshold: I.E. Just pressed beyond programmed deadzone
      */
     public boolean leftTriggerJustReachedThreshold = false;
     
     /**
-     * Whether or not the left trigger has just stopped inputting: I.E. Just released below 50%
+     * Whether or not the left trigger has just stopped inputting: I.E. Just released below programmed deadzone
      */
     
     public boolean leftTriggerJustStoppedInputting = false;
@@ -104,13 +104,13 @@ public class ControllerStateWrapper {
     public float rightTrigger = 0;
     
     /**
-     * Whether or not the right trigger has just reached it's threshold: I.E. Just pressed beyond 50%
+     * Whether or not the right trigger has just reached it's threshold: I.E. Just pressed beyond programmed deadzone
      */
     
     public boolean rightTriggerJustReachedThreshold = false;
     
     /**
-     * Whether or not the right trigger has just stopped inputting: I.E. Just released below 50%
+     * Whether or not the right trigger has just stopped inputting: I.E. Just released below programmed deadzone
      */
     
     public boolean rightTriggerJustStoppedInputting = false;
@@ -347,6 +347,57 @@ public class ControllerStateWrapper {
 	
 	private ControllerStateWrapper() {}
 	
+	public static enum Axis{
+		L_X(0),
+		L_Y(1),
+		R_X(2),
+		R_Y(3),
+		LT(4),
+		RT(5);
+		
+		private final int index;
+		
+		private Axis(int index) {
+			this.index = index;
+		}
+		
+		public int getIndex() {
+			return index;
+		}
+		
+		public float getMagnatude(ControllerStateWrapper state) {
+			switch(this) {
+				case L_X:
+					return state.leftStickX;
+				case L_Y:
+					return state.leftStickY;
+				case R_X:
+					return state.rightStickX;
+				case R_Y:
+					return state.rightStickY;
+				case LT:
+					return state.leftTrigger;
+				case RT:
+					return state.rightTrigger;
+				default:
+					throw new AssertionError();
+			}
+		}
+		
+		public static Axis getAxis(int index) {
+			return Axis.values()[index];
+		}
+		
+		public static Axis getAxis(String name) {
+			for(Axis axis : values()) {
+				if(name.equals(axis.name())) {
+					return axis;
+				}
+			}
+			throw new IllegalArgumentException(name);
+		}
+	}
+	
 	public static enum Button{
 		A(0),
 		B(1),
@@ -362,13 +413,9 @@ public class ControllerStateWrapper {
 		D_PAD_LEFT(11),
 		D_PAD_RIGHT(12),
 		LEFT_STICK_BUTTON(13),
-		RIGHT_STICK_BUTTON(14),
+		RIGHT_STICK_BUTTON(14);
 		
-		LT(15),
-		RT(16);
-		
-		
-		int index;
+		private final int index;
 		
 		private Button(int index) {
 			this.index = index;
@@ -386,6 +433,15 @@ public class ControllerStateWrapper {
 		 */
 		public static Button getButton(int index) {
 			return Button.values()[index];
+		}
+		
+		public static Button getButton(String name) {
+			for(Button button : values()) {
+				if(name.equals(button.name())){
+					return button;
+				}
+			}
+			throw new IllegalArgumentException(name);
 		}
 		
 		public boolean isPressed(ControllerStateWrapper controllerState) {
@@ -420,10 +476,6 @@ public class ControllerStateWrapper {
 					return controllerState.x;
 				case Y:
 					return controllerState.y;
-				case LT:
-					return controllerState.leftTrigger > 0.5;
-				case RT:
-					return controllerState.rightTrigger > 0.5;
 				default:
 					throw new AssertionError();
 			}
@@ -461,10 +513,6 @@ public class ControllerStateWrapper {
 					return controllerState.xJustPressed;
 				case Y:
 					return controllerState.yJustPressed;
-				case LT:
-					return controllerState.leftTriggerJustReachedThreshold;
-				case RT:
-					return controllerState.rightTriggerJustReachedThreshold;
 				default:
 					throw new AssertionError();
 			}
