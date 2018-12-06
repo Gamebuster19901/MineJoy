@@ -54,6 +54,10 @@ public final class Console {
 		return name;
 	}
 	
+	public String getName() {
+		return name;
+	}
+	
 	public static void init() {
 		for(Console c : DEFAULT_CONSOLES) {
 			register(c);
