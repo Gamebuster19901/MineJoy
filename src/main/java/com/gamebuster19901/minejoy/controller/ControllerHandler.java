@@ -88,6 +88,7 @@ public enum ControllerHandler {
 		}
 	};
 	
+	@SuppressWarnings("unused")
 	@SubscribeEvent
 	public final void everyTick(ClientTickEvent e) {
 		if(canSendControllerEvents()) {

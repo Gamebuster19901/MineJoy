@@ -339,7 +339,8 @@ public enum ControllerMouse{
  	}
 
  	
- 	@SubscribeEvent
+ 	@SuppressWarnings("unused")
+	@SubscribeEvent
  	public void onMove(MoveOneMeterEvent e) {
  		if(isHoldingPlaceButton()) {
  			try {

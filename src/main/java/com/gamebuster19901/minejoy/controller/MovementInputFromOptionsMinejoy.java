@@ -80,6 +80,7 @@ public final class MovementInputFromOptionsMinejoy extends MovementInputFromOpti
 		jump = jump ? jump : state.a && !ControllerMouse.wasGUIJustOpen;
 	}
 	
+	@SuppressWarnings("unused")
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onTick(ClientTickEvent e) {
 		if(Minecraft.getMinecraft().player != null) {

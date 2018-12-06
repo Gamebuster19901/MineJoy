@@ -64,6 +64,7 @@ public class Minejoy {
 		
 	}
 	
+	@SuppressWarnings("unused")
 	@EventHandler
 	public void init(FMLInitializationEvent e){
 

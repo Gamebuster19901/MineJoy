@@ -8,6 +8,7 @@ package com.gamebuster19901.minejoy.exception;
  * 
  */
 
+@SuppressWarnings("serial")
 public class DuplicateElementException extends IllegalArgumentException{
 	public DuplicateElementException(String name) {
 		super(name);
