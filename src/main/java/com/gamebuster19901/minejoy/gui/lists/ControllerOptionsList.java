@@ -1,27 +1,28 @@
-package com.gamebuster19901.minejoy.gui;
+package com.gamebuster19901.minejoy.gui.lists;
 
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiListExtended.IGuiListEntry;
 import net.minecraft.client.gui.GuiListExtended;
 
-public class GuiControllerOptionsList extends GuiListExtended{
+public class ControllerOptionsList<T extends IGuiListEntry> extends GuiListExtended{
 	
-	protected List<GuiEntryController> entries;
+	protected List<T> entries;
 
-	public GuiControllerOptionsList(Minecraft mcIn, int widthIn, int heightIn, List<GuiEntryController> entries) {
+	public ControllerOptionsList(Minecraft mcIn, int widthIn, int heightIn, List<T> entries) {
 		super(mcIn, widthIn, heightIn, 32, heightIn - 55, 36);
 		this.entries = entries;
 		this.centerListVertically = true;
 		this.setHasListHeader(false, (int)(mcIn.fontRenderer.FONT_HEIGHT * 1.5f));
 	}
 	
-	public List<GuiEntryController> getList(){
+	public List<T> getList(){
 		return entries;
 	}
 	
 	@Override
-	public GuiEntryController getListEntry(int index) {
+	public T getListEntry(int index) {
 		return getList().get(index);
 	}
 	
