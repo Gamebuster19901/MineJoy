@@ -59,9 +59,6 @@ public final class MovementInputFromOptionsMinejoy extends MovementInputFromOpti
 			if(Math.abs(state.leftStickX) > 0.5) {
 				moveStrafeController = state.leftStickX;
 			}
-			
-			new ControllerStateWrapper(state);
-
 		}
 		
 		if(Math.abs(moveForwardController) > Math.abs(moveForward)) {
