@@ -18,10 +18,10 @@ public abstract class LayoutElement<V>{
 
 	protected static final Field ERROR_MESSAGE = ReflectionHelper.findField(Expression.class, "errorMessage");
 	
-	private transient Expression expression;
-	private transient Argument argument = new Argument("v");
+	private transient volatile Expression expression;
+	private transient volatile Argument argument = new Argument("v");
 	
-	protected transient double expressionValue = Double.NaN;
+	protected transient volatile double expressionValue = Double.NaN;
 	
 	public LayoutElement() {
 		this("v");
@@ -69,7 +69,9 @@ public abstract class LayoutElement<V>{
 	 * @return true if the the value of the layout element could be calculated, false otherwise.
 	 */
 	private boolean eval() {
-		return (expressionValue = expression.calculate()) != Double.NaN;
+		synchronized(expression) {
+			return (expressionValue = expression.calculate()) != Double.NaN;
+		}
 	}
 	
 	public abstract V getValue();
