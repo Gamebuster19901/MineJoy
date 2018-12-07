@@ -104,7 +104,6 @@ public enum ControllerMouse{
  	
  	@SubscribeEvent
  	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
- 		ControllerStateWrapper state1 = e.getControllerState();
 		ControllerStateWrapper state = e.getModifiedControllerState();
 		
 		GuiScreen gui = mc.currentScreen;
