@@ -18,7 +18,7 @@ public abstract class LayoutElement<V>{
 
 	protected static final Field ERROR_MESSAGE = ReflectionHelper.findField(Expression.class, "errorMessage");
 	
-	private transient volatile Expression expression;
+	private volatile Expression expression;
 	private transient volatile Argument argument = new Argument("v");
 	
 	protected transient volatile double expressionValue = Double.NaN;
