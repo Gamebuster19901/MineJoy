@@ -16,6 +16,8 @@ import org.apache.logging.log4j.Level;
 
 public abstract class Layout{
 	
+	private static final Minecraft mc = Minecraft.getMinecraft();
+	
 	protected static final HashMap<Control, LayoutElement> DEFAULT_CONTROLS = new HashMap<Control, LayoutElement>();
 	static {
 		for(AxisControl a : Control.Axes.ALL) {
@@ -53,8 +55,10 @@ public abstract class Layout{
 		
 		protected LayoutWrapper interpret() {
 			if(Minecraft.getMinecraft() != null) {
-				leftStickX = -leftStickX; //X axis for player movment is inverted when minecraft first processes it, so we must invert it back to make movement normal
-				rightStickY = -rightStickY; //Y axis for camera movement is inverted when minecraft first processes it, so we must invert it back to make camera movement normal
+				if(mc.currentScreen == null) {
+					leftStickX = -leftStickX; //X axis for player movment is inverted when minecraft first processes it, so we must invert it back to make movement normal
+					rightStickY = -rightStickY; //Y axis for camera movement is inverted when minecraft first processes it, so we must invert it back to make camera movement normal
+				}
 				
 				for(Control c : controls.keySet()) {
 					LayoutElement e = controls.get(c);
