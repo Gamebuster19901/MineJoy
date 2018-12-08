@@ -9,7 +9,9 @@ import com.google.gson.annotations.JsonAdapter;
 
 @JsonAdapter(LayoutElementAdapter.class)
 public class ButtonElement extends LayoutElement<Boolean>{
-
+	public static final Expression DEFAULT_EXPRESSION = new Expression("0");
+	
+	
 	private boolean inverted = false;
 	
 	public ButtonElement() {
@@ -38,6 +40,11 @@ public class ButtonElement extends LayoutElement<Boolean>{
 	@Override
 	public Boolean getValue() {
 		return expressionValue > 0;
+	}
+	
+	@Override
+	protected Expression getDefaultExpression() {
+		return new Expression("0");
 	}
 	
 	public static enum State{

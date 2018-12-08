@@ -44,6 +44,8 @@ public abstract class LayoutElement<V>{
 		this.expression.addArguments(argument);
 	}
 	
+	protected abstract Expression getDefaultExpression();
+	
 	public final float eval(float value) {
 		argument.setArgumentValue(value);
 		if(eval()) {
@@ -57,7 +59,7 @@ public abstract class LayoutElement<V>{
 			else if (v instanceof Float) {
 				return (float) v;
 			}
-			throw new AssertionError("Unknown evaluation type");
+			throw new AssertionError("Unknown evaluation type: " + v.getClass().getCanonicalName());
 		}
 		else {
 			Minejoy.LOGGER.log(Level.ERROR, getError());
@@ -70,7 +72,7 @@ public abstract class LayoutElement<V>{
 	 */
 	private boolean eval() {
 		synchronized(expression) {
-			return (expressionValue = expression.calculate()) != Double.NaN;
+			return (expressionValue = getDefaultExpression().calculate() + expression.calculate()) != Double.NaN;
 		}
 	}
 	

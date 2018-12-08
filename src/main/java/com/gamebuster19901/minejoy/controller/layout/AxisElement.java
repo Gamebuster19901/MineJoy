@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 
 @JsonAdapter(LayoutElementAdapter.class)
 public class AxisElement extends LayoutElement<Float>{
+	public static final Expression DEFAULT_AXIS_EXPRESSION = new Expression("");
 	
 	private boolean invertedInGame;
 	private boolean invertedInGui;
@@ -44,5 +45,10 @@ public class AxisElement extends LayoutElement<Float>{
 	
 	public boolean isInvertedInGui() {
 		return invertedInGui;
+	}
+
+	@Override
+	protected Expression getDefaultExpression() {
+		return DEFAULT_AXIS_EXPRESSION;
 	}
 }
