@@ -86,8 +86,8 @@ public enum ControllerHandler {
 				try {
 					gameHasFocus = Display.isCreated() && Display.isActive();
 				}
-				catch(Exception e) {
-					e.printStackTrace();
+				catch(IllegalStateException e) {
+					gameHasFocus = false;
 				}
 			}
 		}
