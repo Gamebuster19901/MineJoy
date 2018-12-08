@@ -9,7 +9,7 @@ import com.gamebuster19901.minejoy.gson.exception.GsonFormatException;
 import com.gamebuster19901.minejoy.gson.exception.UnsatisfiedGsonLinkException;
 import com.gamebuster19901.minejoy.gson.exception.UnsupportedVersionException;
 
-import static com.gamebuster19901.minejoy.gson.LayoutElementAdapter.Names.*;
+import static com.gamebuster19901.minejoy.gson.LayoutElementAdapter.Fields.*;
 import static com.gamebuster19901.minejoy.gson.LayoutElementAdapter.Types.*;
 
 import com.google.gson.TypeAdapter;
@@ -134,7 +134,7 @@ public final class LayoutElementAdapter extends TypeAdapter<LayoutElement>{
 		}
 	}
 	
-	static interface Names{
+	static interface Fields{
 		String VERSION = "version";
 		String TYPE = "type";
 		String INVERTED = "inverted";
