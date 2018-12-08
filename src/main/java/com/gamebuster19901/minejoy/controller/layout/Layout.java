@@ -36,14 +36,18 @@ public abstract class Layout{
 	
 	private String name;
 	
-	protected transient boolean isDefault;
+	public transient final boolean isDefault;
 	
 	public abstract LayoutWrapper getWrapper(ControllerStateWrapper state);
 	
 	public Layout(String name, HashMap<Control, LayoutElement> controls) {
+		this(name, controls, false);
+	}
+	
+	public Layout (String name, HashMap<Control, LayoutElement> controls, boolean isDefault) {
 		this.name = name;
 		this.controls = controls;
-		this.isDefault = true;
+		this.isDefault = isDefault;
 	}
 	
 	public abstract class LayoutWrapper extends ControllerStateWrapper{
