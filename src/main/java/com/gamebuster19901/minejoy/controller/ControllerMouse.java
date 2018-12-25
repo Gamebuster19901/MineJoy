@@ -98,19 +98,16 @@ public enum ControllerMouse{
  	private float deltaY = 0;
  	
  	ControllerStateWrapper lastState = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
- 	ControllerStateWrapper lastStateNoGL = ControllerStateWrapper.DISCONNECTED_CONTROLLER;
- 	
-
  	
  	@SubscribeEvent
- 	public void onControllerEvent(ControllerEventNoGL.Pre e) throws IllegalArgumentException, IllegalAccessException{
+ 	public void onControllerEvent(ControllerEvent.Pre e) throws IllegalArgumentException, IllegalAccessException{
 		ControllerStateWrapper state = e.getModifiedControllerState();
 		
-		GuiScreen gui = mc.currentScreen;
+		GuiScreen oldGui = mc.currentScreen;
 		EntityPlayer player = mc.player;
 		
 		if(state.leftStickMagnitude > 0.3) {
-			if(gui != null) {
+			if(oldGui != null) {
 				deltaX += state.leftStickX * state.leftStickMagnitude;
 				deltaY += state.leftStickY * state.leftStickMagnitude;
 				
@@ -138,7 +135,7 @@ public enum ControllerMouse{
 			}
 		}
 		
-		if(player != null && gui == null) {
+		if(player != null && oldGui == null) {
 			if(state.rightStickMagnitude > 0.3) {
 				float rotationPitch = player.rotationPitch + state.rightStickY * state.rightStickMagnitude * 0.25f;
 				player.rotationPitch = MathHelper.clamp(rotationPitch, -90f, 90f);
@@ -148,192 +145,193 @@ public enum ControllerMouse{
  	}
  	
  	@SubscribeEvent
- 	public void onControllerEventNoGL(ControllerEventNoGL.Post e) {
+ 	public void onControllerEvent(ControllerEvent.Post e) {
  		ControllerStateWrapper state = e.getModifiedControllerState();
  		GuiScreen gui = mc.currentScreen;
- 		if(gui != null) {
- 			if(state.aJustPressed) {
- 				ROBOT.mousePress(InputEvent.BUTTON1_DOWN_MASK);
- 			}
- 			else if(!state.a && lastStateNoGL.a) {
- 				ROBOT.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
- 			}
- 			
- 			if(state.xJustPressed && wasGUIJustOpen) {
- 				ROBOT.mousePress(InputEvent.BUTTON3_DOWN_MASK);
- 			}
- 			else if(!state.x && lastStateNoGL.x) {
- 				ROBOT.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
- 			}
- 			
- 			if(state.yJustPressed) {
- 				ROBOT.keyPress(KeyEvent.VK_SHIFT);
- 				ROBOT.mousePress(InputEvent.BUTTON1_DOWN_MASK);
- 			}
- 			else if(!state.y && lastStateNoGL.y) {
- 				ROBOT.keyRelease(KeyEvent.VK_SHIFT);
- 				ROBOT.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
- 			}
- 			
- 			if(state.bJustPressed || state.backJustPressed) {
- 				ROBOT.keyPress(KeyEvent.VK_ESCAPE);
- 				ROBOT.keyRelease(KeyEvent.VK_ESCAPE);
- 			}
- 			
- 			wasGUIJustOpen = true;
- 		}
- 		else if(gui == null) {
- 			wasGUIJustOpen = false;
- 		}
- 		
-		if(state.rightStickJustClicked) {
-			try {
-				middle_click_mouse.invoke(mc);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-				throw new AssertionError(e1);
-			}
-		}
- 		
-		lastStateNoGL = state;
- 	}
-	
- 	@SubscribeEvent
- 	public void onControllerEvent(ControllerEvent.Post e) {
- 		GuiScreen gui = mc.currentScreen;
- 		ControllerStateWrapper state = e.getControllerState();
-		EntityPlayer player = mc.player;
-		if(gui == null && player != null && mc.world.isRemote) {
-			if(state.bJustPressed) {
-				player.dropItem(false);
-			}
-			
-			if(state.xJustPressed) {
-				Minecraft.getMinecraft().displayGuiScreen(new GuiInventory(player));
-			}
-			
-			if(state.rbJustPressed) {
-				if(mc.player.inventory.currentItem < 8) {
-					mc.player.inventory.currentItem++;
+ 		EntityPlayer player = mc.player;
+ 		mc.addScheduledTask(new Runnable() {
+ 			final ControllerStateWrapper oldState = state;
+ 			final GuiScreen oldGui = gui;
+ 			final EntityPlayer oldPlayer = player;
+			public void run() {
+		 		if(oldGui != null) {
+		 			if(oldState.aJustPressed) {
+		 				ROBOT.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		 			}
+		 			else if(!oldState.a && lastState.a) {
+		 				ROBOT.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		 			}
+		 			
+		
+ 		 			if(oldState.xJustPressed && wasGUIJustOpen) {
+ 		 				ROBOT.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+ 		 			}
+ 		 			else if(!oldState.x && lastState.x) {
+ 		 				ROBOT.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+ 		 			}
+		 			
+		 			if(oldState.yJustPressed) {
+		 				ROBOT.keyPress(KeyEvent.VK_SHIFT);
+		 				ROBOT.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		 			}
+		 			else if(!oldState.y && lastState.y) {
+		 				ROBOT.keyRelease(KeyEvent.VK_SHIFT);
+		 				ROBOT.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		 			}
+		 			
+		 			if(oldState.bJustPressed || oldState.backJustPressed) {
+		 				ROBOT.keyPress(KeyEvent.VK_ESCAPE);
+		 				ROBOT.keyRelease(KeyEvent.VK_ESCAPE);
+		 			}
+		 			
+		 			wasGUIJustOpen = true;
+		 		}
+		 		else if(oldGui == null) {
+		 			wasGUIJustOpen = false;
+		 		}
+		 		
+				if(oldState.rightStickJustClicked) {
+					try {
+						middle_click_mouse.invoke(mc);
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+						throw new AssertionError(e1);
+					}
 				}
-				else {
-					mc.player.inventory.currentItem = 0;
-				}
-			}
-			
-			if(state.lbJustPressed) {
-				if(mc.player.inventory.currentItem > 0) {
-					mc.player.inventory.currentItem--;
-				}
-				else {
-					mc.player.inventory.currentItem = 8;
-				}
-			}
-			
-			if(state.rightTriggerJustReachedThreshold) {
-				try {
-					click_mouse.invoke(mc);
-					KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), true);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-					throw new AssertionError(e1);
-				}
-			}
-			else if(state.rightTriggerJustStoppedInputting) {
-				KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), false);
-			}
-			
-			if(!state.rightTriggerJustReachedThreshold && state.leftTriggerJustReachedThreshold) {
-				try {
-					right_click_mouse.invoke(mc);
-					KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-					throw new AssertionError(e1);
-				}
-			}
-			else if(state.leftTriggerJustStoppedInputting) {
-				KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
-			}
-
-			
-			if(state.startJustPressed || state.guideJustPressed) {
-				mc.displayInGameMenu();
-			}
-			
-			if(state.yJustPressed) {
-				if (!player.isSpectator()){
-					mc.getConnection().sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
-				}
-			}
-			
-			if(player.getRidingEntity() instanceof EntityBoat) {
-				
-				byte triggerState = 0;
-				
-				if(state.leftTrigger > 0.5) {
-					triggerState ^= 1; //Bit marked by X: [0000000X]
-				}
-				if(state.rightTrigger > 0.5) {
-					triggerState ^= 2; //Bit marked by X: [000000X0]
-				}
-				if(state.back) {
-					triggerState ^= 4; //Bit marked by X: [00000X00]
-				}
-				
-				switch(triggerState) {
-				
-					//going forward
-				
-					case 1:
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-						break;
-					case 2:
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-						break;
-					case 3:
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), true);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-						break;
+		 		
+				if(oldGui == null && oldPlayer != null && mc.world.isRemote) {
+					if(oldState.bJustPressed) {
+						oldPlayer.dropItem(false);
+					}
+					
+					if(oldState.xJustPressed) {
+						Minecraft.getMinecraft().displayGuiScreen(new GuiInventory(oldPlayer));
+					}
+					
+					if(oldState.rbJustPressed) {
+						if(oldPlayer.inventory.currentItem < 8) {
+							oldPlayer.inventory.currentItem++;
+						}
+						else {
+							oldPlayer.inventory.currentItem = 0;
+						}
+					}
+					
+					if(oldState.lbJustPressed) {
+						if(oldPlayer.inventory.currentItem > 0) {
+							oldPlayer.inventory.currentItem--;
+						}
+						else {
+							oldPlayer.inventory.currentItem = 8;
+						}
+					}
+					
+					if(oldState.rightTriggerJustReachedThreshold) {
+						try {
+							click_mouse.invoke(mc);
+							KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), true);
+						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+							throw new AssertionError(e1);
+						}
+					}
+					else if(oldState.rightTriggerJustStoppedInputting) {
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), false);
+					}
+					
+					if(!oldState.rightTriggerJustReachedThreshold && oldState.leftTriggerJustReachedThreshold) {
+						try {
+							right_click_mouse.invoke(mc);
+							KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
+						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+							throw new AssertionError(e1);
+						}
+					}
+					else if(oldState.leftTriggerJustStoppedInputting) {
+						KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
+					}
+		
+					
+					if(oldState.startJustPressed || oldState.guideJustPressed) {
+						mc.displayInGameMenu();
+					}
+					
+					if(oldState.yJustPressed) {
+						if (!oldPlayer.isSpectator()){
+							mc.getConnection().sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
+						}
+					}
+					
+					if(oldPlayer.getRidingEntity() instanceof EntityBoat) {
 						
-					//going backward
+						byte triggerState = 0;
 						
-					case 5:
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-						break;
+						if(oldState.leftTrigger > 0.5) {
+							triggerState ^= 1; //Bit marked by X: [0000000X]
+						}
+						if(oldState.rightTrigger > 0.5) {
+							triggerState ^= 2; //Bit marked by X: [000000X0]
+						}
+						if(oldState.back) {
+							triggerState ^= 4; //Bit marked by X: [00000X00]
+						}
 						
-					case 6:
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-						break;
+						switch(triggerState) {
 						
-					case 7:
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), true);
-						break;
-					default:
-						System.out.println((int)triggerState);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-						KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
-						break;
+							//going forward
+						
+							case 1:
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+								break;
+							case 2:
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+								break;
+							case 3:
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), true);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+								break;
+								
+							//going backward
+								
+							case 5:
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), true);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+								break;
+								
+							case 6:
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), true);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+								break;
+								
+							case 7:
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), true);
+								break;
+							default:
+								System.out.println((int)triggerState);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+								KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+								break;
+						}
+					
+					}
 				}
-			
 			}
-		}
+ 		});
  		lastState = e.getModifiedControllerState();
  	}
 

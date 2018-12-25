@@ -2,16 +2,14 @@ package com.gamebuster19901.minejoy.controller;
 
 import com.gamebuster19901.minejoy.controller.layout.Layout;
 import com.studiohartman.jamepad.ControllerIndex;
+
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-
 /**
- * This event is safe for rendering, but is only called once per tick.
+ * This event is posted every millisecond
  * 
- * This is useful for things that don't need to be updated as often as possible, but needs to be rendered by openGL, like
- * pressing a GuiButton.
+ * Note that when using this event there is no OpenGL context, therefore it is not safe for rendering.
  */
-
 public abstract class ControllerEvent extends Event{
 	private int index;
 	private ControllerStateWrapper state;
@@ -41,9 +39,6 @@ public abstract class ControllerEvent extends Event{
 		return modified;
 	}
 	
-	/**
-	 * @deprecated for internal use only
-	 */
 	@Deprecated
 	public static class Pre extends ControllerEvent{
 

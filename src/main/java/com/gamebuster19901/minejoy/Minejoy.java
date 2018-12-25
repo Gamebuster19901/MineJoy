@@ -34,7 +34,7 @@ public class Minejoy {
 	public static final String MODNAME = "MineJoy";
 	public static final String VERSION = "0.8.0.0";
 	public static final Logger LOGGER = LogManager.getLogger(MODNAME);
-	private static boolean enabled = true;
+	private static volatile boolean enabled = true;
 	
 	@Mod.Instance()
 	public static Minejoy instance;
