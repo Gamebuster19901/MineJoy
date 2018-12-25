@@ -1,18 +1,18 @@
 package com.gamebuster19901.minejoy.controller.layout;
 
-import static com.gamebuster19901.minejoy.controller.layout.ButtonElement.State.*;
+import org.apache.commons.lang3.BooleanUtils;
+import org.mariuszgromada.math.mxparser.Function;
 
-import org.mariuszgromada.math.mxparser.Expression;
-
+import com.gamebuster19901.minejoy.exception.FunctionException;
+import com.gamebuster19901.minejoy.exception.InvalidFunctionException;
 import com.gamebuster19901.minejoy.gson.LayoutElementAdapter;
 import com.google.gson.annotations.JsonAdapter;
 
 @JsonAdapter(LayoutElementAdapter.class)
 public class ButtonElement extends LayoutElement<Boolean>{
-	public static final Expression DEFAULT_EXPRESSION = new Expression("0");
+	public static final Function DEFAULT_FUNCTION = new Function("buttonFunction(val, inverted) = if(inverted, ~val, val)");
 	
-	
-	private boolean inverted = false;
+	private volatile boolean inverted = false;
 	
 	public ButtonElement() {
 		super();
@@ -23,58 +23,58 @@ public class ButtonElement extends LayoutElement<Boolean>{
 		setInverted(inverted);
 	}
 	
-	public void setInverted(boolean inversion) {
-		this.inverted = inversion;
-		if(inverted) {
-			this.setExpression(INVERTED.getExpression());
-		}
-		else {
-			this.setExpression(NORMAL.getExpression());
-		}
+	@Override
+	public Boolean getValue(float input) {
+		eval(input);
+		return functionValue > 0;
 	}
 	
-	public boolean isInverted() {
+	public Boolean getValue(boolean input) {
+		return getValue(BooleanUtils.toInteger(input));
+	}
+	
+	@Override
+	protected final Function getDefaultFunction() {
+		return DEFAULT_FUNCTION;
+	}
+	
+	protected final void setInverted(boolean inversion) {
+		this.inverted = inversion;
+	}
+	
+	public final boolean isInverted() {
 		return inverted;
 	}
 	
 	@Override
-	public Boolean getValue() {
-		return expressionValue > 0;
+	protected final boolean isValidEvaluation(float value) {
+		if(isValid()) {
+			double val = function.calculate((double)value, BooleanUtils.toInteger(inverted));
+			if(isReturnValueValid(val)) {
+				functionValue = val;
+				return true;
+			}
+		}
+		return false;
 	}
-	
+
 	@Override
-	protected Expression getDefaultExpression() {
-		return new Expression("0");
-	}
-	
-	public static enum State{
-		NORMAL(new Expression("d")),
-		INVERTED(new Expression("~(d)"));
-		
-		private final Expression expression;
-		
-		private State(Expression expression) {
-			this.expression = expression;
+	protected void checkFunctionValid(Function function) throws FunctionException {
+		if(function.checkSyntax()) {
+			for(double val = 0; val < 1; val++) {
+				for(double inverted = 0; inverted < 1; inverted++) {
+					double calculatedValue = function.calculate(val, inverted);
+					if(Double.isNaN(calculatedValue)) {
+						throw new InvalidFunctionException(function.getErrorMessage());
+					}
+					if(calculatedValue != 0 && calculatedValue != 1) {
+						throw new FunctionException("Button functions must always return 0 or 1! The function " + function.getFunctionExpressionString() + " with values " + "val = " + val + " and inverted = " + inverted + " return " + calculatedValue + " instead!");
+					}
+				}
+			}
 		}
-		
-		public Expression getExpression() {
-			Expression expression = new Expression(this.expression.getExpressionString());
-			try {
-				ERROR_MESSAGE.set(expression, this.expression.getErrorMessage());
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new AssertionError(e);
-			}
-			return expression;
-		}
-		
-		public boolean matches(Object o) {
-			if(o instanceof Expression) {
-				return expression.equals(o) || expression.getExpressionString().equals(((Expression) o).getExpressionString());
-			}
-			else if (o instanceof String) {
-				return expression.getExpressionString().equals(o);
-			}
-			return false;
+		else {
+			throw new InvalidFunctionException(function.getErrorMessage());
 		}
 	}
 	

@@ -31,9 +31,10 @@ public final class LayoutElementAdapter extends TypeAdapter<LayoutElement>{
 		long version = 0;
 		String type = "";
 		boolean inverted = false;
+		double deadzone = 0.5d;
 		boolean invertedInGame = false;
 		boolean invertedInGui = false;
-		String expression = "v";
+		String expression = "value";
 		
 		boolean foundVersion = false;
 		
@@ -51,6 +52,9 @@ public final class LayoutElementAdapter extends TypeAdapter<LayoutElement>{
 						break;
 					case INVERTED:
 						inverted = reader.nextBoolean();
+						break;
+					case DEADZONE:
+						deadzone = reader.nextDouble();
 						break;
 					case INVERTED_GAME:
 						invertedInGame = reader.nextBoolean();
@@ -92,7 +96,7 @@ public final class LayoutElementAdapter extends TypeAdapter<LayoutElement>{
 		}
 		
 		if(type.equals(AXIS)) {
-			return new AxisElement(invertedInGame, invertedInGui, expression);
+			return new AxisElement(invertedInGame, invertedInGui, deadzone,  expression);
 		}
 		else if(type.equals(BUTTON)) {
 			return new ButtonElement(inverted);
@@ -117,6 +121,9 @@ public final class LayoutElementAdapter extends TypeAdapter<LayoutElement>{
 					writer.value(((ButtonElement) element).isInverted());
 				}
 				else if(element instanceof AxisElement){
+					writer.name(DEADZONE);
+					writer.value(((AxisElement) element).getDeadzone());
+					
 					writer.name(INVERTED_GAME);
 					writer.value(((AxisElement) element).isInvertedInGame());
 					
@@ -124,7 +131,7 @@ public final class LayoutElementAdapter extends TypeAdapter<LayoutElement>{
 					writer.value(((AxisElement) element).isInvertedInGui());
 					
 					writer.name(EXPRESSION);
-					writer.value(element.getExpression().getExpressionString());
+					writer.value(element.getExpressionString());
 				}
 				
 			writer.endObject();
@@ -138,6 +145,7 @@ public final class LayoutElementAdapter extends TypeAdapter<LayoutElement>{
 		String VERSION = "version";
 		String TYPE = "type";
 		String INVERTED = "inverted";
+		String DEADZONE = "deadzone";
 		String INVERTED_GAME = "invertedInGame";
 		String INVERTED_GUI = "invertedInGui";
 		String EXPRESSION = "expression";

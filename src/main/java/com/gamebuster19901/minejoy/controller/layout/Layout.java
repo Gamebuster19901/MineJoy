@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.Level;
 
 public abstract class Layout{
@@ -65,8 +64,8 @@ public abstract class Layout{
 				}
 				
 				for(Control c : controls.keySet()) {
-					LayoutElement e = controls.get(c);
 					if(c.getControl() instanceof Axis) {
+						AxisElement e = (AxisElement)controls.get(c);
 						Axis axis = (Axis) c.getControl();
 						switch(axis) {
 							case L_X:
@@ -93,52 +92,53 @@ public abstract class Layout{
 						}
 					}
 					else if (c.getControl() instanceof Button) {
+						ButtonElement e = (ButtonElement)controls.get(c);
 						Button button = (Button) c.getControl();
 						switch(button) {
 							case A:
-								a = calculateButton(e, a);
+								a = e.getValue(a);
 								break;
 							case B:
-								b = calculateButton(e, b);
+								b = e.getValue(b);
 								break;
 							case BACK:
-								back = calculateButton(e, back);
+								back = e.getValue(back);
 								break;
 							case D_PAD_DOWN:
-								dpadDown = calculateButton(e, dpadDown);
+								dpadDown = e.getValue(dpadDown);
 								break;
 							case D_PAD_LEFT:
-								dpadLeft = calculateButton(e, dpadLeft);
+								dpadLeft = e.getValue(dpadLeft);
 								break;
 							case D_PAD_RIGHT:
-								dpadRight = calculateButton(e, dpadRight);
+								dpadRight = e.getValue(dpadRight);
 								break;
 							case D_PAD_UP:
-								dpadUp = calculateButton(e, dpadUp);
+								dpadUp = e.getValue(dpadUp);
 								break;
 							case GUIDE:
-								guide = calculateButton(e, guide);
+								guide = e.getValue(guide);
 								break;
 							case LB:
-								lb = calculateButton(e, lb);
+								lb = e.getValue(lb);
 								break;
 							case LEFT_STICK_BUTTON:
-								leftStickClick = calculateButton(e, leftStickClick);
+								leftStickClick = e.getValue(leftStickClick);
 								break;
 							case RB:
-								rb = calculateButton(e, rb);
+								rb = e.getValue(rb);
 								break;
 							case RIGHT_STICK_BUTTON:
-								rightStickClick = calculateButton(e, rightStickClick);
+								rightStickClick = e.getValue(rightStickClick);
 								break;
 							case START:
-								start = calculateButton(e, start);
+								start = e.getValue(start);
 								break;
 							case X:
-								x = calculateButton(e, x);
+								x = e.getValue(x);
 								break;
 							case Y:
-								y = calculateButton(e, y);
+								y = e.getValue(y);
 								break;
 							default:
 								Minejoy.LOGGER.log(Level.WARN, "Unknown button: " + button);
@@ -151,10 +151,6 @@ public abstract class Layout{
 			return this;
 		}
 		
-	}
-	
-	private boolean calculateButton(LayoutElement element, boolean pressed) {
-		return element.eval(BooleanUtils.toInteger(pressed)) != 0;
 	}
 	
 	public static final Layout getLayout() {

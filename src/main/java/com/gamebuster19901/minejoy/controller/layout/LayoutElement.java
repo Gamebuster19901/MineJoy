@@ -1,82 +1,71 @@
 package com.gamebuster19901.minejoy.controller.layout;
 
-import java.lang.reflect.Field;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
-import org.apache.logging.log4j.Level;
-import org.mariuszgromada.math.mxparser.Argument;
-import org.mariuszgromada.math.mxparser.Expression;
+import org.mariuszgromada.math.mxparser.Function;
 import org.mariuszgromada.math.mxparser.syntaxchecker.ParseException;
 
 import com.gamebuster19901.minejoy.Minejoy;
+import com.gamebuster19901.minejoy.exception.FunctionException;
 import com.gamebuster19901.minejoy.gson.LayoutElementAdapter;
+
 import com.google.gson.annotations.JsonAdapter;
 
 @JsonAdapter(LayoutElementAdapter.class)
 public abstract class LayoutElement<V>{
-
-	protected static final Field ERROR_MESSAGE = ReflectionHelper.findField(Expression.class, "errorMessage");
+	protected transient final Lock LOCK = new ReentrantLock();
 	
-	private volatile Expression expression;
-	private transient volatile Argument argument = new Argument("v");
+	protected volatile Function function;
 	
-	protected transient volatile double expressionValue = Double.NaN;
+	private transient volatile boolean valid = true;
+	protected transient volatile double functionValue = 0;
 	
 	public LayoutElement() {
-		this("v");
+		this.function = getDefaultFunction();
 	}
 	
-	public LayoutElement(String expression) {
-		setExpression(expression);
+	public LayoutElement(String function) {
+		setFunction(function);
 	}
 	
-	public LayoutElement(Expression expression) {
-		setExpression(expression);
+	public LayoutElement(Function function) {
+		setFunction(function);
+	}
+
+	public void setFunction(String function) {
+		setFunction(new Function(function));
 	}
 	
-	public void setExpression(String expression) {
-		setExpression(new Expression(expression));
-	}
-	
-	protected void setExpression(Expression expression) {
-		this.expression = expression;
-		this.expression.addArguments(argument);
-	}
-	
-	protected abstract Expression getDefaultExpression();
-	
-	public final float eval(float value) {
-		argument.setArgumentValue(value);
-		if(eval()) {
-			Object v = getValue();
-			if(v instanceof Boolean) {
-				if (((Boolean)v) == false) {
-					return 0;
-				}
-				return 1;
-			}
-			else if (v instanceof Float) {
-				return (float) v;
-			}
-			throw new AssertionError("Unknown evaluation type: " + v.getClass().getCanonicalName());
+	protected void setFunction(Function function) {
+		boolean valid = true;
+		try {
+			checkFunctionValid(function);
+		} catch (FunctionException e) {
+			Minejoy.LOGGER.catching(e);
+			valid = false;
 		}
-		else {
-			Minejoy.LOGGER.log(Level.ERROR, getError());
-			return 0;
+		this.function = function;
+		this.valid = valid;
+	}
+	
+	protected abstract Function getDefaultFunction();
+	
+	public abstract V getValue(float input);
+	
+	protected final float eval(float value) {
+		if(valid && !isValidEvaluation(value)) {
+			Minejoy.LOGGER.catching(new FunctionException("Function " + function.getFunctionExpressionString() + " returned illegal value or is malformed. Value: " + value));
 		}
+		return (float) functionValue;
 	}
 	
 	/**
-	 * @return true if the the value of the layout element could be calculated, false otherwise.
+	 * @return true if the the value of the layout element was successfully calculated, false otherwise.
+	 * 
+	 * If the value was successfully calculated, then functionValue is set to the new value;
 	 */
-	private boolean eval() {
-		synchronized(expression) {
-			return (expressionValue = getDefaultExpression().calculate() + expression.calculate()) != Double.NaN;
-		}
-	}
-	
-	public abstract V getValue();
+	protected abstract boolean isValidEvaluation(float value);
 	
 	/**
 	 * @return a ParseException containing the error message
@@ -84,20 +73,29 @@ public abstract class LayoutElement<V>{
 	 * @throws IllegalStateException if the layoutElement did not error
 	 */
 	public ParseException getError() {
-		if(expression.getErrorMessage() != null) {
-			return new ParseException(expression.getErrorMessage());
+		if(getDefaultFunction().getFunctionExpressionString().equals(function.getFunctionExpressionString())) {
+			return new ParseException("Error in default function: " + getDefaultFunction().getErrorMessage());
+		}
+		if(!function.getErrorMessage().contains("no errors")) {
+			return new ParseException(function.getErrorMessage());
 		}
 		throw new IllegalStateException("There was no error to get! Call eval() first!");
 	}
 	
-	public Expression getExpression() {
-		Expression expression = new Expression(this.expression.getExpressionString());
-		try {
-			ERROR_MESSAGE.set(expression, this.expression.getErrorMessage());
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new AssertionError(e);
-		}
-		return expression;
+	protected abstract void checkFunctionValid(Function function) throws FunctionException;
+	
+	/**
+	 * @return true if this LayoutElement has not been marked as invalid
+	 */
+	protected final boolean isValid(){
+		return valid;
 	}
 	
+	protected boolean isReturnValueValid(double value) {
+		return !(Double.isNaN(value) || Double.isInfinite(value));
+	}
+	
+	public final String getExpressionString() {
+		return function.getFunctionExpressionString();
+	}
 }
